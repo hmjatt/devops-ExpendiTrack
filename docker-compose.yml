@@ -49,6 +49,8 @@ services:
     depends_on:
       - frontend
       - backend
+    links:
+      - backend
 
 volumes:
   db_data:
