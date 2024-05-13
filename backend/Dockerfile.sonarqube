@@ -1,0 +1,19 @@
+# Use a Maven base image
+FROM maven:3.8.4-eclipse-temurin-17-alpine
+
+#Set the working directory
+WORKDIR /app
+
+# Copy the source code
+COPY . .
+
+# Define build argument for the Sonarqube token
+ARG SONAR_TOKEN
+
+RUN mvn clean
+RUN mvn test
+# Run SonarQube Analysis
+RUN mvn clean test sonar:sonar \
+  -Dsonar.projectKey=budget-tracker-backend \
+  -Dsonar.host.url=https://jack.hc-sc.gc.ca/sonarqube \
+  -Dsonar.login=$SONAR_TOKEN
