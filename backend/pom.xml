@@ -15,6 +15,9 @@
 	<description>project to track a budget</description>
 	<properties>
 		<java.version>17</java.version>
+		<sonar.java.binaries>target</sonar.java.binaries>
+		<maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>

@@ -1,0 +1,67 @@
+version: "3.8"
+services:
+  db:
+    image: ${database}:${version}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  backend:
+    image: ${backend}:${version}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/Expendi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - db
+        # condition: service_healthy
+    networks:
+      - app_network
+
+  frontend:
+    image: ${frontend}:${version}
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    ports:
+      - "80:80"
+
+  selenium-standalone:
+    image: ${seleniumStandalone}:${version}
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app_network
+
+  selenium-tests:
+    image: ${seleniumTests}:${version}
+    depends_on:
+      - selenium-standalone
+        # condition: service_healthy
+    environment:
+      - SELENIUM_REMOTE_URL=http://selenium:4444/wd/hub
+      - APP_BASE_URL=http://frontend
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  db_data:

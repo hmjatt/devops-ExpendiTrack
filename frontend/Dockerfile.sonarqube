@@ -1,0 +1,13 @@
+FROM node:20.11
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY sonar-project.properties .
+COPY . .
+
+RUN npm install -g sonarqube-scanner
+
+ARG SONAR_TOKEN
+
+RUN sonar-scanner -Dsonar.login=$SONAR_TOKEN
