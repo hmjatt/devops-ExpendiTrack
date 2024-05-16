@@ -1,31 +1,37 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { getUserExpenses, createExpense, updateExpense, deleteExpense } from '../services/ExpenseService';
 import { useUserContext } from "./UserContext";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 export const ExpenseContext = createContext();
 
 export const useExpenseContext = () => useContext(ExpenseContext);
 
+/**
+ * Provides the context for managing expenses, including fetching, adding, updating, and deleting expenses.
+ * Also handles errors and updates the context consumers when changes occur.
+ *
+ * @param {Object} children - The child components that will consume the context.
+ * @returns {JSX.Element} The context provider component.
+ */
 export const ExpenseProvider = ({ children }) => {
     const [expenses, setExpenses] = useState([]);
     const { user } = useUserContext();
 
     const [error, setError] = useState('');
-    const userId = user?.id; // Extract userId for dependency tracking
+    const userId = user?.id;
 
     const { t, i18n } = useTranslation();
 
-    // Update to hold the error message key instead of the translated message
     const [errorKey, setErrorKey] = useState('');
     const [dynamicErrorContent, setDynamicErrorContent] = useState({});
+    const [updateCounter, setUpdateCounter] = useState(0); // This will be used to notify changes
 
     const errorMapping = useMemo(() => ({
         "invalid input: expenses amount cannot be negative.": "app.invalidExpenseInput",
         "invalid input: expensesdescription must be alphanumeric": "app.expenseDescriptionError",
         "unexpectederror": "app.unexpectedError",
     }), []);
-
 
     useEffect(() => {
         const handleLanguageChange = () => {
@@ -41,6 +47,11 @@ export const ExpenseProvider = ({ children }) => {
         };
     }, [i18n, errorKey, dynamicErrorContent, t]);
 
+    /**
+     * Fetches the expenses for a specific user.
+     *
+     * @param {number} userId - The ID of the user whose expenses are to be fetched.
+     */
     const fetchExpenses = useCallback(async (userId) => {
         try {
             const response = await getUserExpenses(userId);
@@ -53,7 +64,7 @@ export const ExpenseProvider = ({ children }) => {
             const errorMessage = error.message || 'An unexpected error occurred';
             setError(errorMessage);
         }
-    }, []); // Empty dependencies array since it's intended to be a generic fetch function
+    }, []);
 
     useEffect(() => {
         if (userId) {
@@ -61,86 +72,87 @@ export const ExpenseProvider = ({ children }) => {
         }
     }, [userId, fetchExpenses]);
 
-    // Use useCallback to memoize addNewExpense to keep it stable across renders
-    const addNewExpense = useCallback(async (expenseData) => {
+    /**
+     * Handles errors by setting the appropriate error message and key.
+     *
+     * @param {Error} error - The error to handle.
+     */
+    const handleError = useCallback((error) => {
+        if (error.message.startsWith("An expense with the name")) {
+            const expenseNameMatch = error.message.match(/"([^"]+)"/);
+            const expenseName = expenseNameMatch ? expenseNameMatch[1] : "Unknown";
 
-        if (!userId) return; // Guard clause to ensure userId is available
+            setDynamicErrorContent({ name: expenseName });
+            setErrorKey("app.expenseExistsError");
+            setError(t("app.expenseExistsError", { name: expenseName }));
+        } else {
+            const normalizedErrorMessage = error.message.toLowerCase();
+            const key = errorMapping[normalizedErrorMessage] || "app.unexpectedError";
+            setErrorKey(key);
+            setError(t(key));
+        }
+    }, [errorMapping, t]);
+
+    /**
+     * Adds a new expense for the current user.
+     *
+     * @param {Object} expenseData - The data for the new expense.
+     */
+    const addNewExpense = useCallback(async (expenseData) => {
+        if (!userId) return;
 
         try {
             const response = await createExpense({
                 ...expenseData,
                 userId: userId,
             });
-            setExpenses(prevExpenses => Array.isArray(prevExpenses) ? [...prevExpenses, response] : [response]);
+            setExpenses(prevExpenses => [...prevExpenses, response]);
+            setUpdateCounter(prev => prev + 1); // Notify change
             setError('');
         } catch (error) {
-            if (error.message.startsWith("An expense with the name")) {
-                const expenseNameMatch = error.message.match(/"([^"]+)"/);
-                const expenseName = expenseNameMatch ? expenseNameMatch[1] : "Unknown";
-
-                setDynamicErrorContent({ name: expenseName });
-                setErrorKey("app.expenseExistsError");
-                setError(t("app.expenseExistsError", { name: expenseName }));
-
-            } else {
-                const normalizedErrorMessage = error.message.toLowerCase();
-                const key = errorMapping[normalizedErrorMessage] || "app.unexpectedError";
-                setErrorKey(key);
-                setError(t(key));
-            }
+            handleError(error);
         }
-    }, [userId, errorMapping, t]); // Removed 'expenses' from the dependency array
+    }, [userId, handleError]);
 
+    /**
+     * Updates an existing expense for the current user.
+     *
+     * @param {number} expenseId - The ID of the expense to update.
+     * @param {Object} expenseData - The new data for the expense.
+     */
     const updateExistingExpense = useCallback(async (expenseId, expenseData) => {
+        if (!userId) return;
+
         try {
-            const updatedExpense = await updateExpense(expenseId, expenseData);
-            const updatedExpenses = expenses.map(expense =>
-                expense.expensesId === updatedExpense.expensesId ? updatedExpense : expense
-            );
-            setExpenses(updatedExpenses);
+            await updateExpense(expenseId, expenseData);
+            setUpdateCounter(prev => prev + 1); // Notify change
             setError('');
         } catch (error) {
-
-            if (error.message.startsWith("An expense with the name")) {
-                const expenseNameMatch = error.message.match(/"([^"]+)"/);
-                const expenseName = expenseNameMatch ? expenseNameMatch[1] : "Unknown";
-
-                setDynamicErrorContent({ name: expenseName });
-                setErrorKey("app.expenseExistsError");
-                setError(t("app.expenseExistsError", { name: expenseName }));
-
-            } else {
-                const normalizedErrorMessage = error.message.toLowerCase();
-                const key = errorMapping[normalizedErrorMessage] || "app.unexpectedError";
-                setErrorKey(key);
-                setError(t(key));
-            }
+            handleError(error);
         }
-    }, [expenses, errorMapping, t, setExpenses, setError]);
+    }, [userId, handleError]);
 
+    /**
+     * Removes an expense for the current user.
+     *
+     * @param {number} expenseId - The ID of the expense to remove.
+     */
     const removeExpense = useCallback(async (expenseId) => {
-
-        if (!userId) return; // Guard clause to ensure userId is available
+        if (!userId) return;
 
         try {
             await deleteExpense(expenseId);
-            setExpenses(prevExpenses =>
-                prevExpenses.filter(expense => expense.expensesId !== expenseId)
-            );
+            setUpdateCounter(prev => prev + 1); // Notify change
             setError('');
-            await fetchExpenses(userId); // Fetch expenses again to update UI
         } catch (error) {
             const errorMessage = error.message || 'An unexpected error occurred';
             setError(errorMessage);
         }
-    }, [userId, setExpenses, setError, fetchExpenses]);
+    }, [userId]);
 
-    const resetError = useCallback(() => setError(''), []); // Wrap resetError in useCallback
+    const resetError = useCallback(() => setError(''), []);
+    const resetExpError = useCallback(() => setError(''), []);
 
-    const resetExpError = useCallback(() => setError(''), []); // Wrap resetError in useCallback
-
-
-    // Use useMemo to memoize the context value to prevent unnecessary re-renders
     const providerValue = useMemo(() => ({
         expenses,
         addNewExpense,
@@ -148,10 +160,11 @@ export const ExpenseProvider = ({ children }) => {
         removeExpense,
         fetchExpenses,
         error,
-        resetError, // Now stable across renders
+        resetError,
         resetExpError,
-        setError
-    }), [expenses, addNewExpense, updateExistingExpense, removeExpense, fetchExpenses, error, resetError, resetExpError]);
+        setError,
+        updateCounter // Expose update counter
+    }), [expenses, addNewExpense, updateExistingExpense, removeExpense, fetchExpenses, error, resetError, resetExpError, updateCounter]);
 
     return (
         <ExpenseContext.Provider value={providerValue}>
