@@ -7,7 +7,14 @@ import BudgetTracker.Tracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.logging.Logger;
+
+
 import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Service class for handling business logic related to budgets.
  */
@@ -32,6 +39,13 @@ public class BudgetService {
 
         return budgetRepository.findByUserId(userId);
     }
+
+    /**
+     *     created by Emily 05/16
+     *     To add log
+      */
+    private static final Logger logger = Logger.getLogger(BudgetService.class.getName());
+
     /**
      * Creates a new budget.
      *
@@ -121,6 +135,29 @@ public class BudgetService {
             throw new BudgetNotFoundException("Budget with ID " + id + " not found.");
         }
         budgetRepository.deleteById(id);
+    }
+
+    /**
+     * Created by Emily 05/16
+     * Retrieves budgets grouped by their description for a specific user.
+     *
+     * @param userId The ID of the user whose budgets to group by category.
+     * @return A map where the key is the budget description and the value is the total amount for that category.
+     * If no budgets are found, an empty map is returned.
+     */
+    public Map<String, Integer> getBudgetGroupedByCategory(Long userId) {
+        List<Budget> userBudgets = budgetRepository.findByUserId(userId);
+        if (userBudgets.isEmpty()) {
+            logger.info("No budgets found for user with ID " + userId + " for grouping by category.");
+            return Collections.emptyMap();
+        }
+        Map<String, Integer> result = userBudgets.stream()
+                .collect(Collectors.groupingBy(
+                        Budget::getBudgetDescription,
+                        Collectors.summingInt(Budget::getBudgetAmount)
+                ));
+        logger.info("Budgets grouped by category for user ID " + userId + ": " + result);
+        return result;
     }
 
 

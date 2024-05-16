@@ -18,3 +18,20 @@ export const getExpensesByCategory = () => {
         });
 };
 
+
+/**
+ *
+ * created by emily 05/16
+ * Fetches budgets grouped by category.
+ *
+ * @returns {Promise<Object>} A promise that resolves to an object containing budgets grouped by category.
+ * @throws {Error} Throws an error if the request fails.
+ */
+export const getBudgetsByCategory = () => {
+    return axios.get(`${API_URL}/budgets-by-category`)
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Error fetching budgets by category:', error);
+            throw new Error(error.response?.data || 'Failed to load budgets by category. Please try again later.');
+        });
+};

@@ -20,6 +20,9 @@ export const BudgetProvider = ({ children }) => {
 
     const [dynamicErrorContent, setDynamicErrorContent] = useState({});
 
+    const [updateCounter, setUpdateCounter] = useState(0); // Notify data change
+
+
     const errorMapping = useMemo(() => ({
         "Invalid input: Budget amount cannot be negative or zero.": "app.invalidBudgetInput",
         "Invalid input: BudgetDescription must be alphanumeric": "app.budgetDescriptionError",
@@ -83,6 +86,8 @@ export const BudgetProvider = ({ children }) => {
                 userId: userId,
             });
             setBudgets(prevBudgets => [...prevBudgets, response]);
+            setUpdateCounter(prev => prev + 1); // Notify data change
+
             setError('');
 
         } catch (error) {
@@ -139,6 +144,8 @@ export const BudgetProvider = ({ children }) => {
         try {
             await deleteBudget(budgetId);
             setBudgets(prevBudgets => prevBudgets.filter(budget => budget.budgetId !== budgetId));
+            setUpdateCounter(prev => prev + 1); // Notify data change
+
             setError('');
         } catch (error) {
 
@@ -163,6 +170,8 @@ export const BudgetProvider = ({ children }) => {
         error,
         setError,
         resetError,
+        updateCounter // show updateCounter
+
     }), [budgets, addNewBudget, updateExistingBudget, shouldPopulateForm, enableFormPopulation, disableFormPopulation, removeBudget, fetchBudgets, error, resetError]);
 
     return (
