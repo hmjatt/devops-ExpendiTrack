@@ -4,11 +4,9 @@ import BudgetTracker.Tracker.service.BudgetService;
 import BudgetTracker.Tracker.service.ExpensesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,7 +16,7 @@ public class DataController {
     @Autowired
     private ExpensesService expensesService;
 
-    //created by emily 05/16
+    // created by emily 05/16
     @Autowired
     private BudgetService budgetService;
 
@@ -35,14 +33,16 @@ public class DataController {
     }
 
     /**
-     * Endpoint to retrieve budgets grouped by category.
+     * Endpoint to retrieve budget names and amounts by user ID.
      *
-     * @return A ResponseEntity containing a map where the key is the budget category
-     * and the value is the total amount for that category.
+     * @param userId The ID of the user whose budget names and amounts are to be retrieved.
+     * @return A ResponseEntity containing a list of budget names and amounts associated with the specified user.
      */
-    @GetMapping("/budgets-by-category")
-    public ResponseEntity<Map<String, Integer>> getBudgetsByCategory(@RequestParam Long userId) {
-        Map<String, Integer> budgetsByCategory = budgetService.getBudgetGroupedByCategory(userId);
-        return ResponseEntity.ok(budgetsByCategory);
+    @GetMapping("/user/{userId}/budgets")
+    public ResponseEntity<List<BudgetService.BudgetNameAndAmount>> getBudgetNamesAndAmountsByUserId(@PathVariable Long userId) {
+        List<BudgetService.BudgetNameAndAmount> budgetNamesAndAmounts = budgetService.getBudgetNamesAndAmountsByUserId(userId);
+        return ResponseEntity.ok(budgetNamesAndAmounts);
     }
+
+
 }

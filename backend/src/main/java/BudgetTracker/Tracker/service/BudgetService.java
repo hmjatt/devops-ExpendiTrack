@@ -138,26 +138,33 @@ public class BudgetService {
     }
 
     /**
-     * Created by Emily 05/16
-     * Retrieves budgets grouped by their description for a specific user.
+     * Retrieves budget names and amounts by user ID.
      *
-     * @param userId The ID of the user whose budgets to group by category.
-     * @return A map where the key is the budget description and the value is the total amount for that category.
-     * If no budgets are found, an empty map is returned.
+     * @param userId The ID of the user whose budget names and amounts are to be retrieved.
+     * @return List of budget names and amounts associated with the specified user.
      */
-    public Map<String, Integer> getBudgetGroupedByCategory(Long userId) {
-        List<Budget> userBudgets = budgetRepository.findByUserId(userId);
-        if (userBudgets.isEmpty()) {
-            logger.info("No budgets found for user with ID " + userId + " for grouping by category.");
-            return Collections.emptyMap();
+    public List<BudgetNameAndAmount> getBudgetNamesAndAmountsByUserId(Long userId) {
+        return budgetRepository.findByUserId(userId).stream()
+                .map(budget -> new BudgetNameAndAmount(budget.getBudgetDescription(), budget.getBudgetAmount()))
+                .collect(Collectors.toList());
+    }
+
+    public static class BudgetNameAndAmount {
+        private String name;
+        private int amount;
+
+        public BudgetNameAndAmount(String name, int amount) {
+            this.name = name;
+            this.amount = amount;
         }
-        Map<String, Integer> result = userBudgets.stream()
-                .collect(Collectors.groupingBy(
-                        Budget::getBudgetDescription,
-                        Collectors.summingInt(Budget::getBudgetAmount)
-                ));
-        logger.info("Budgets grouped by category for user ID " + userId + ": " + result);
-        return result;
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAmount() {
+            return amount;
+        }
     }
 
 
