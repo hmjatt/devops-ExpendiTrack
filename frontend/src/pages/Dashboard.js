@@ -7,26 +7,19 @@ import { useExpenseContext } from "../contexts/ExpenseContext";
 import '../styles/Dashboard.css';
 import { useTranslation } from "react-i18next";
 import BarChart from "../components/BarChart";
+import BudgetPieChart from "../components/BudgetPieChart";
 import BudgetBarChart from '../components/BudgetBarChart';
 
-/**
- * Dashboard component renders the main dashboard with budget and expense details.
- */
+
 const Dashboard = () => {
     const { user } = useUserContext();
     const { budgets, fetchBudgets } = useBudgetContext();
     const { fetchExpenses } = useExpenseContext();
     const { t, i18n } = useTranslation();
 
-    /**
-     * Effect hook to handle language changes.
-     */
     useEffect(() => {
     }, [i18n.language]);
 
-    /**
-     * Effect hook to fetch budgets and expenses when the user changes.
-     */
     useEffect(() => {
         if (user && user.id) {
             fetchBudgets(user.id);
@@ -39,19 +32,21 @@ const Dashboard = () => {
             {user && <h1>{t("app.dashboard-welcome")}, {user.name}!</h1>}
 
             <div className="dashboard-container">
-
                 <div className="dashboard-forms-container">
                     <AddBudgetForm />
                 </div>
-
                 <div className="budget-list-container">
                     <BudgetList budgets={budgets} />
                 </div>
             </div>
-            //add barchart for budget edited by Emily 05/16
             <div className="chart-container">
-                <BarChart />
-                <BudgetBarChart />  {/* adding BudgetBarChart element */}
+                <div className="pie-chart-container">
+                    <BudgetPieChart />
+                </div>
+                <div className="budget-bar-chart-container">
+                    <BudgetBarChart />  {/* adding BudgetBarChart element */}
+                </div>
+
             </div>
         </div>
     );

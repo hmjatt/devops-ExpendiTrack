@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { Pie } from 'react-chartjs-2';
 import { useBudgetContext } from '../contexts/BudgetContext';
 import 'chart.js/auto';
 
-const BudgetBarChart = () => {
+const BudgetPieChart = () => {
     const [chartData, setChartData] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,13 +51,17 @@ const BudgetBarChart = () => {
     return (
         <div>
             <h2>Budgets by Category</h2>
-            <Bar
+            <Pie
                 data={chartData}
                 options={{
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Budgets by Category'
                         }
                     }
                 }}
@@ -66,4 +70,4 @@ const BudgetBarChart = () => {
     );
 };
 
-export default BudgetBarChart;
+export default BudgetPieChart;

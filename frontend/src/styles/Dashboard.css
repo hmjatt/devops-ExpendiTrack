@@ -452,15 +452,18 @@
 /* Container for charts within Dashboard */
 .chart-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
     width: 100%;
     margin-top: 20px;  /* Add some top margin */
 }
 
-.chart-container > div {
-    width: 100%;
+
+.budget-bar-chart-container,
+.pie-chart-container {
+    flex: 0 0 45%;
+    min-width: 300px;
     max-width: 600px;
-    margin-bottom: 20px;
 }
 
