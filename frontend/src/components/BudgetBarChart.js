@@ -7,9 +7,8 @@ const BudgetBarChart = () => {
     const [chartData, setChartData] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { budgets, updateCounter } = useBudgetContext();
-
-    console.log('Budgets data:', budgets);
+    const [noData, setNoData] = useState(false);
+    const { budgets, fetchBudgets } = useBudgetContext(); // Retrieve the fetchBudgets method
 
     const prepareChartData = useCallback(() => {
         if (budgets && budgets.length > 0) {
@@ -32,15 +31,29 @@ const BudgetBarChart = () => {
             });
 
             setLoading(false);
+            setNoData(false);
         } else {
             setLoading(false);
-            setError('No budgets available to display.');
+            setNoData(true);
         }
     }, [budgets]);
 
     useEffect(() => {
-        prepareChartData();
-    }, [prepareChartData, updateCounter]);
+        const loadBudgets = async () => {
+            setLoading(true);
+            setError(null);
+            setNoData(false);
+            try {
+                await fetchBudgets(); // Call the fetchBudgets method to retrieve budget
+                prepareChartData(); //  Prepare chart data
+            } catch (error) {
+                setError('Failed to load budgets. Please refresh the page to try again.');
+                setLoading(false);
+            }
+        };
+
+        loadBudgets();
+    }, [fetchBudgets, prepareChartData]);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -48,6 +61,10 @@ const BudgetBarChart = () => {
 
     if (error) {
         return <div>Error: {error}</div>;
+    }
+
+    if (noData) {
+        return <div>No budgets available to display.</div>;
     }
 
     return (

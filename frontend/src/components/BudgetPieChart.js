@@ -7,7 +7,8 @@ const BudgetPieChart = () => {
     const [chartData, setChartData] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { budgets, updateCounter } = useBudgetContext();
+    const [noData, setNoData] = useState(false);
+    const { budgets, fetchBudgets } = useBudgetContext();
 
     const prepareChartData = useCallback(() => {
         if (budgets && budgets.length > 0) {
@@ -30,15 +31,29 @@ const BudgetPieChart = () => {
             });
 
             setLoading(false);
+            setNoData(false);
         } else {
             setLoading(false);
-            setError('No budgets available to display.');
+            setNoData(true);
         }
     }, [budgets]);
 
     useEffect(() => {
-        prepareChartData();
-    }, [prepareChartData, updateCounter]);
+        const loadBudgets = async () => {
+            setLoading(true);
+            setError(null);
+            setNoData(false);
+            try {
+                await fetchBudgets(); // calling fetchBudgets method to retrieve budget
+                prepareChartData(); // prepare dat for chart
+            } catch (error) {
+                setError('Failed to load budgets. Please refresh the page to try again.');
+                setLoading(false);
+            }
+        };
+
+        loadBudgets();
+    }, [fetchBudgets, prepareChartData])
 
     if (loading) {
         return <div>Loading...</div>;
@@ -46,6 +61,10 @@ const BudgetPieChart = () => {
 
     if (error) {
         return <div>Error: {error}</div>;
+    }
+
+    if (noData) {
+        return <div>No budgets available to display.</div>;
     }
 
     return (
