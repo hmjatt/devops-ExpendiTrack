@@ -52,12 +52,16 @@ export const BudgetProvider = ({ children }) => {
     const fetchBudgets = useCallback(async (userId) => {
         try {
             const response = await getBudgetsByUserId(userId);
+            //console.log('Fetched budgets:', response); // print data
+
             if (Array.isArray(response)) {
                 setBudgets(response);
             } else {
                 setError('Failed to fetch budgets correctly');
             }
         } catch (error) {
+            //console.error('Error fetching budgets:', error); // print log
+
             const errorMessage = error.message || 'An unexpected error occurred';
             setError(errorMessage);
         }
@@ -172,7 +176,7 @@ export const BudgetProvider = ({ children }) => {
         resetError,
         updateCounter // show updateCounter
 
-    }), [budgets, addNewBudget, updateExistingBudget, shouldPopulateForm, enableFormPopulation, disableFormPopulation, removeBudget, fetchBudgets, error, resetError]);
+    }), [budgets, addNewBudget, updateExistingBudget, shouldPopulateForm, enableFormPopulation, disableFormPopulation, removeBudget, fetchBudgets, error, resetError, updateCounter]);
 
     return (
         <BudgetContext.Provider value={providerValue}>

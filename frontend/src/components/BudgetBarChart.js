@@ -9,6 +9,8 @@ const BudgetBarChart = () => {
     const [error, setError] = useState(null);
     const { budgets, updateCounter } = useBudgetContext();
 
+    console.log('Budgets data:', budgets);
+
     const prepareChartData = useCallback(() => {
         if (budgets && budgets.length > 0) {
             const labels = budgets.map(budget => budget.budgetDescription);
