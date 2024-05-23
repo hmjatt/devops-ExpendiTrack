@@ -202,7 +202,20 @@ public class ExpensesService {
         return result;
     }
 
-
+    public Map<String, Integer> getExpensesGroupedByBudget() {
+        List<Expenses> allExpenses = expenseRepository.findAll();
+        if (allExpenses.isEmpty()) {
+            logger.info("No expenses found for grouping by category.");
+            return Collections.emptyMap();
+        }
+        Map<String, Integer> result = allExpenses.stream()
+                .collect(Collectors.groupingBy(
+                                e -> e.getBudget().getBudgetDescription(),
+                        Collectors.summingInt(Expenses::getExpensesAmount)
+                ));
+        logger.info("Expenses grouped by category: " + result);
+        return result;
+    }
 }
 
 

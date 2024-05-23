@@ -22,6 +22,8 @@ public class BudgetService {
 
     @Autowired
     private UserService userService;
+
+
     /**
      * Retrieves budgets associated with a specific user.
      *
@@ -32,6 +34,7 @@ public class BudgetService {
 
         return budgetRepository.findByUserId(userId);
     }
+
     /**
      * Creates a new budget.
      *
@@ -64,6 +67,7 @@ public class BudgetService {
 
         return budgetRepository.save(budget);
     }
+
     /**
      * Checks if a string contains only alphanumeric characters.
      *
@@ -122,6 +126,12 @@ public class BudgetService {
         }
         budgetRepository.deleteById(id);
     }
+
+    /*
+    *
+    *
+    */
+
 
 
 }
