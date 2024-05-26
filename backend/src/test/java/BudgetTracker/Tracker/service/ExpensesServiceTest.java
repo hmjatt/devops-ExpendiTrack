@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,13 +31,21 @@ public class ExpensesServiceTest{
 
     @Mock
     private ExpensesRepository expensesRepository;
+
     @InjectMocks
     private ExpensesService expensesService;
 
     @Mock
     private BudgetRepository budgetRepository;
+
     private Budget budget;
+    private Budget budget1;
+    private Budget budget2;
+
     private Expenses expense;
+    private Expenses expense1;
+    private Expenses expense2;
+    private Expenses expense3;
 
     @BeforeEach
     void setUp() {
@@ -46,14 +55,49 @@ public class ExpensesServiceTest{
         // Inject the mocked ExpensesRepository into your service
         ReflectionTestUtils.setField(expensesService, "expenseRepository", expensesRepository);
 
-        expense = new Expenses();
-        expense.setExpensesDescription("tuition fees");
-        expense.setExpensesDate(Instant.now());
 
+
+        // Initialize budgets
         budget = new Budget();
         budget.setBudgetId(100L);
         budget.setBudgetDescription("study");
         budget.setBudgetAmount(1000);
+
+        budget1 = new Budget();
+        budget1.setBudgetId(1L);
+        budget1.setBudgetDescription("Groceries");
+        budget1.setBudgetAmount(500);
+
+        budget2 = new Budget();
+        budget2.setBudgetId(2L);
+        budget2.setBudgetDescription("Utilities");
+        budget2.setBudgetAmount(300);
+
+        // Initialize expenses
+        expense = new Expenses();
+        expense.setExpensesDescription("tuition fees");
+        expense.setExpensesDate(Instant.now());
+
+        expense1 = new Expenses();
+        expense1.setExpensesId(1L);
+        expense1.setExpensesDescription("Milk");
+        expense1.setExpensesAmount(50);
+        expense1.setExpensesDate(Instant.now());
+        expense1.setBudget(budget1);
+
+        expense2 = new Expenses();
+        expense2.setExpensesId(2L);
+        expense2.setExpensesDescription("Bread");
+        expense2.setExpensesAmount(30);
+        expense2.setExpensesDate(Instant.now());
+        expense2.setBudget(budget1);
+
+        expense3 = new Expenses();
+        expense3.setExpensesId(3L);
+        expense3.setExpensesDescription("Electricity");
+        expense3.setExpensesAmount(100);
+        expense3.setExpensesDate(Instant.now());
+        expense3.setBudget(budget2);
 
     }
 
@@ -241,5 +285,30 @@ public class ExpensesServiceTest{
         assertThrows(RuntimeException.class, () -> expensesService.deleteExpense(expenseId));
     }
 
+    @Test
+    void getExpensesGroupedByBudget_Success() {
+        List<Expenses> allExpenses = Arrays.asList(expense1, expense2, expense3);
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(2, groupedExpenses.size());
+        assertEquals(80, groupedExpenses.get("Groceries").intValue());
+        assertEquals(100, groupedExpenses.get("Utilities").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_EmptyList() {
+        when(expensesRepository.findAll()).thenReturn(Collections.emptyList());
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(0, groupedExpenses.size());
+
+        verify(expensesRepository).findAll();
+    }
 
 }

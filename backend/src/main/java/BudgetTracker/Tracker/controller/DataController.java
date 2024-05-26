@@ -1,6 +1,8 @@
 package BudgetTracker.Tracker.controller;
 
 import BudgetTracker.Tracker.service.ExpensesService;
+import BudgetTracker.Tracker.service.BudgetService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +21,13 @@ public class DataController {
     /**
      * Endpoint to retrieve expenses grouped by category.
      *
-     * @return A ResponseEntity containing a map where the key is the expense category
-     * and the value is the total amount for that category.
+     * @return A ResponseEntity containing a map where the key is the budget budget
+     * and the value is the total amount of expenses for that budget.
      */
-    @GetMapping("/expenses-by-category")
-    public ResponseEntity<Map<String, Integer>> getExpensesByCategory() {
-        Map<String, Integer> expensesByCategory = expensesService.getExpensesGroupedByCategory();
-        return ResponseEntity.ok(expensesByCategory);
+
+    @GetMapping("/totalexpenses-by-budget")
+    public ResponseEntity<Map<String, Integer>> getTotalExpensesByBudget() {
+        Map<String, Integer> expensesByBudget = expensesService.getExpensesGroupedByBudget();
+        return ResponseEntity.ok(expensesByBudget);
     }
 }
