@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from "react-i18next";
-import { useExpenseContext} from "../contexts/ExpenseContext";
+import { useExpenseContext } from "../contexts/ExpenseContext";
 
-const DataList = React.memo(() => {
+const DataList = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -10,25 +10,26 @@ const DataList = React.memo(() => {
     const { updateCounter } = useExpenseContext();
 
     useEffect(() => {
-        fetch('http://localhost:8080/data/totalexpenses-by-budget')
-            .then(response => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/data/totalexpenses-by-budget');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
-            })
-            .then(data => {
-                const transformedData = Object.entries(data).map(([key, value]) => ({
+                const result = await response.json();
+                const transformedData = Object.entries(result).map(([key, value]) => ({
                     string: key,
                     int: value
                 }));
                 setData(transformedData);
-                setLoading(false);
-            })
-            .catch(error => {
+            } catch (error) {
                 setError(error);
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchData();
     }, [updateCounter]);
 
     useEffect(() => {
@@ -65,6 +66,6 @@ const DataList = React.memo(() => {
             </ul>
         </div>
     );
-});
+};
 
-export default DataList;
+export default React.memo(DataList);
