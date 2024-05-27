@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-// import { getExpensesByCategory } from '../services/ChartService';
-// import { useExpenseContext } from '../contexts/ExpenseContext';
+import { useTranslation } from "react-i18next";
+import { useExpenseContext} from "../contexts/ExpenseContext";
 
-const DataList = () => {
+const DataList = React.memo(() => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { t, i18n } = useTranslation();
+    const { updateCounter } = useExpenseContext();
 
     useEffect(() => {
         fetch('http://localhost:8080/data/totalexpenses-by-budget')
@@ -27,7 +29,11 @@ const DataList = () => {
                 setError(error);
                 setLoading(false);
             });
-    }, []);
+    }, [updateCounter]);
+
+    useEffect(() => {
+        console.log('Language changed:', i18n.language);
+    }, [i18n.language]);
 
     if (loading) {
         return <div className="text-center">Loading...</div>;
@@ -37,19 +43,28 @@ const DataList = () => {
         return <div className="text-center text-danger">Error: {error.message}</div>;
     }
 
+    if (!Array.isArray(data) || data.length === 0) {
+        return (
+            <div className="no-budget-item-container">
+                <h2 className="h2-titles">Data</h2>
+                <p>{t("app.dataListNotAvailable")}</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="container">
-            <h3 className="my-3">Data List</h3>
+        <div className="container data-list-container">
+            <h2 className="h2-titles">Data List</h2>
             <ul className="list-group">
                 {data.map((item, index) => (
-                    <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                    <li key={index} className="list-group-item data-list-item d-flex justify-content-between align-items-center">
                         {item.string}
-                        <span className="badge bg-primary rounded-pill">{item.int}</span>
+                        <span className="badge bg-primary data-list-badge rounded-pill">{item.int}</span>
                     </li>
                 ))}
             </ul>
         </div>
     );
-};
+});
 
 export default DataList;

@@ -47,7 +47,7 @@ const Dashboard = () => {
                     <BudgetList budgets={budgets} />
                 </div>
             </div>
-            <DataList/>
+                <DataList/>
         </div>
     );
 };
