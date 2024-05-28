@@ -1,25 +1,57 @@
-import { act } from 'react';
-import React, { useEffect, useContext } from 'react';
+import '@testing-library/jest-dom/extend-expect';
+import React from 'react';
 import {
     render,
+    act,
     waitFor,
     screen,
 } from '@testing-library/react';
 import * as BudgetService from '../../services/BudgetService';
-import { BudgetProvider, BudgetContext } from '../BudgetContext';
+import { BudgetProvider } from '../../contexts/BudgetContext';
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18n from "i18next";
 import enTranslations from "../../translations/en/common.json";
 import frTranslations from "../../translations/fr/common.json";
+import BudgetPieChart from '../BudgetPieChart';
 
 jest.mock('../../services/BudgetService');
 
 // Mock the useUserContext
-jest.mock('../UserContext', () => ({
+jest.mock('../../contexts/UserContext', () => ({
     useUserContext: () => ({
         user: { id: 1, name: 'Test User' }
     })
 }));
+
+// Mock canvas for Chart.js
+HTMLCanvasElement.prototype.getContext = jest.fn(() => {
+    return {
+        fillRect: jest.fn(),
+        clearRect: jest.fn(),
+        getImageData: jest.fn(() => ({ data: [] })),
+        putImageData: jest.fn(),
+        createImageData: jest.fn(() => ([])),
+        setTransform: jest.fn(),
+        drawImage: jest.fn(),
+        save: jest.fn(),
+        fillText: jest.fn(),
+        restore: jest.fn(),
+        beginPath: jest.fn(),
+        moveTo: jest.fn(),
+        lineTo: jest.fn(),
+        closePath: jest.fn(),
+        stroke: jest.fn(),
+        translate: jest.fn(),
+        scale: jest.fn(),
+        rotate: jest.fn(),
+        arc: jest.fn(),
+        fill: jest.fn(),
+        measureText: jest.fn(() => ({ width: 0 })),
+        transform: jest.fn(),
+        rect: jest.fn(),
+        clip: jest.fn(),
+    };
+});
 
 const resources = {
     en: {
@@ -40,22 +72,12 @@ i18n
         },
     });
 
-describe('fetchBudgetCategoriesForChart method', () => {
-    const TestComponent = ({ userId }) => {
-        const { chartData, fetchBudgetCategoriesForChart } = useContext(BudgetContext);
-        useEffect(() => {
-            fetchBudgetCategoriesForChart(userId);
-        }, [fetchBudgetCategoriesForChart, userId]);
-
+describe('BudgetPieChart component', () => {
+    const TestComponent = () => {
         return (
-            <div>
-                {chartData && chartData.length === 0 && <span data-testid="no-data">No data</span>}
-                {chartData && chartData.map((category, index) => (
-                    <div key={index} data-testid={`category-${index}`}>
-                        {category.name}: ${category.amount}
-                    </div>
-                ))}
-            </div>
+            <BudgetProvider>
+                <BudgetPieChart />
+            </BudgetProvider>
         );
     };
 
@@ -70,9 +92,7 @@ describe('fetchBudgetCategoriesForChart method', () => {
         await act(async () => {
             render(
                 <I18nextProvider i18n={i18n}>
-                    <BudgetProvider>
-                        <TestComponent userId={userId} />
-                    </BudgetProvider>
+                    <TestComponent />
                 </I18nextProvider>
             );
         });
@@ -81,16 +101,9 @@ describe('fetchBudgetCategoriesForChart method', () => {
             expect(BudgetService.getBudgetCategoriesForChart).toHaveBeenCalledWith(userId);
         });
 
-        // 检查是否渲染了正确的内容
-        screen.debug();
-
         await waitFor(() => {
-            const category0 = screen.getByTestId('category-0');
-            const category1 = screen.getByTestId('category-1');
-            expect(category0).toBeInTheDocument();
-            expect(category1).toBeInTheDocument();
-            expect(category0.textContent).toBe('Category1: $100');
-            expect(category1.textContent).toBe('Category2: $200');
+            expect(screen.getByText('Category1')).toBeInTheDocument();
+            expect(screen.getByText('Category2')).toBeInTheDocument();
         });
     });
 
@@ -102,9 +115,7 @@ describe('fetchBudgetCategoriesForChart method', () => {
         await act(async () => {
             render(
                 <I18nextProvider i18n={i18n}>
-                    <BudgetProvider>
-                        <TestComponent userId={userId} />
-                    </BudgetProvider>
+                    <TestComponent />
                 </I18nextProvider>
             );
         });
@@ -114,7 +125,7 @@ describe('fetchBudgetCategoriesForChart method', () => {
         });
 
         await waitFor(() => {
-            expect(screen.getByTestId('no-data').textContent).toBe('No data');
+            expect(screen.getByText('No budgets available to display.')).toBeInTheDocument();
         });
     });
 
@@ -126,9 +137,7 @@ describe('fetchBudgetCategoriesForChart method', () => {
         await act(async () => {
             render(
                 <I18nextProvider i18n={i18n}>
-                    <BudgetProvider>
-                        <TestComponent userId={userId} />
-                    </BudgetProvider>
+                    <TestComponent />
                 </I18nextProvider>
             );
         });
@@ -138,7 +147,7 @@ describe('fetchBudgetCategoriesForChart method', () => {
         });
 
         await waitFor(() => {
-            expect(screen.getByTestId('no-data').textContent).toBe('No data');
+            expect(screen.getByText('No budgets available to display.')).toBeInTheDocument();
         });
     });
 });

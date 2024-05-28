@@ -1,17 +1,14 @@
-import React, {useEffect} from 'react';
-import {render, act, waitFor, screen} from '@testing-library/react';
+import React, { useEffect } from 'react';
+import { render, act, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ExpenseProvider, useExpenseContext } from '../ExpenseContext';
 import { useUserContext } from '../UserContext';
-
 import * as ExpenseService from '../../services/ExpenseService';
-import ExpenseList from "../../components/ExpenseList";
-import {BrowserRouter} from "react-router-dom";
-import enTranslations from "../../translations/en/common.json";
-import frTranslations from "../../translations/fr/common.json";
-import i18n from "i18next";
-import {I18nextProvider, initReactI18next} from "react-i18next";
-import i18next from "i18next";
+import { BrowserRouter } from 'react-router-dom';
+import i18n from 'i18next';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
+import enTranslations from '../../translations/en/common.json';
+import frTranslations from '../../translations/fr/common.json';
 
 jest.mock('../UserContext');
 jest.mock('../../services/ExpenseService');
@@ -36,17 +33,12 @@ i18n
     });
 
 describe('ExpenseContext Integration Tests', () => {
-
     let originalConsoleError;
 
     const mockUser = { id: 1, name: 'John Doe' };
     const initialExpenses = [
         { expensesId: 1, expensesDescription: 'Groceries', expensesAmount: 150, expensesDate: '2024-02-14', budget: { budgetId: 1 } },
         { expensesId: 2, expensesDescription: 'Utilities', expensesAmount: 100, expensesDate: '2024-02-15', budget: { budgetId: 2 } },
-    ];
-
-    const mockBudgets = [
-        { budgetId: 1, budgetAmount: 1000, budgetDescription: "Test Budget 1" },
     ];
 
     beforeEach(() => {
@@ -79,10 +71,10 @@ describe('ExpenseContext Integration Tests', () => {
 
         await act(async () => {
             render(
-                <I18nextProvider i18n={i18next}>
-                <ExpenseProvider>
-                    <TestComponent />
-                </ExpenseProvider>
+                <I18nextProvider i18n={i18n}>
+                    <ExpenseProvider>
+                        <TestComponent />
+                    </ExpenseProvider>
                 </I18nextProvider>
             );
         });
@@ -96,7 +88,7 @@ describe('ExpenseContext Integration Tests', () => {
 
     it('adds a new expense and updates context accordingly', async () => {
         const newExpense = {
-            expensesId : 3,
+            expensesId: 3,
             expensesDescription: 'Entertainment',
             expensesAmount: 250,
             expensesDate: '2024-02-20',
@@ -120,7 +112,7 @@ describe('ExpenseContext Integration Tests', () => {
 
         await act(async () => {
             render(
-                <I18nextProvider i18n={i18next}>
+                <I18nextProvider i18n={i18n}>
                     <ExpenseProvider>
                         <TestComponent />
                     </ExpenseProvider>
@@ -149,7 +141,7 @@ describe('ExpenseContext Integration Tests', () => {
 
         await act(async () => {
             render(
-                <I18nextProvider i18n={i18next}>
+                <I18nextProvider i18n={i18n}>
                     <ExpenseProvider>
                         <TestComponent />
                     </ExpenseProvider>
@@ -162,16 +154,10 @@ describe('ExpenseContext Integration Tests', () => {
         });
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
     it('updates an existing expense and reflects changes in the context and UI', async () => {
-        // Mock the initial state of expenses
         ExpenseService.getUserExpenses.mockResolvedValueOnce(initialExpenses);
 
-        // Mock the updateExpense method to simulate a successful update
-        const updatedExpense = { ...initialExpenses[0], expensesAmount: 200 }; // Change amount for demonstration
+        const updatedExpense = { ...initialExpenses[0], expensesAmount: 200 };
         ExpenseService.updateExpense.mockResolvedValueOnce(updatedExpense);
 
         const TestComponent = () => {
@@ -186,45 +172,38 @@ describe('ExpenseContext Integration Tests', () => {
             );
         };
 
-        // Render component within the ExpenseProvider
         await act(async () => {
             render(
-                <I18nextProvider i18n={i18next}>
-                <ExpenseProvider>
-                    <BrowserRouter>
-                        <TestComponent />
-                    </BrowserRouter>
-                </ExpenseProvider>
+                <I18nextProvider i18n={i18n}>
+                    <ExpenseProvider>
+                        <BrowserRouter>
+                            <TestComponent />
+                        </BrowserRouter>
+                    </ExpenseProvider>
                 </I18nextProvider>
             );
         });
 
-        // Verify initial state
         expect(screen.getByText('Groceries - $150')).toBeInTheDocument();
 
-        // Simulate update
         await act(async () => {
             userEvent.click(screen.getByText('Update Expense'));
         });
 
-        // Verify the expense has been updated in the UI
         await waitFor(() => {
             expect(ExpenseService.updateExpense).toHaveBeenCalledWith(initialExpenses[0].expensesId, { expensesAmount: 200 });
+            expect(screen.queryByText('Groceries - $150')).not.toBeInTheDocument();
             expect(screen.getByText('Groceries - $200')).toBeInTheDocument();
         });
     });
 
     it('deletes an expense and updates the context and UI accordingly', async () => {
-        // Mock the initial state of expenses
         ExpenseService.getUserExpenses.mockResolvedValueOnce(initialExpenses);
-
-        // Mock the deleteExpense method to simulate a successful deletion
-        ExpenseService.deleteExpense.mockResolvedValueOnce({}); // Assuming deletion does not return the deleted expense
+        ExpenseService.deleteExpense.mockResolvedValueOnce({});
 
         const TestComponent = () => {
             const { expenses, removeExpense, fetchExpenses } = useExpenseContext();
             useEffect(() => {
-                // Initially fetch expenses to populate the context
                 fetchExpenses(mockUser.id);
             }, [fetchExpenses, mockUser.id]);
 
@@ -240,10 +219,9 @@ describe('ExpenseContext Integration Tests', () => {
             );
         };
 
-        // Render component within the ExpenseProvider
         await act(async () => {
             render(
-                <I18nextProvider i18n={i18next}>
+                <I18nextProvider i18n={i18n}>
                     <ExpenseProvider>
                         <BrowserRouter>
                             <TestComponent />
@@ -253,22 +231,17 @@ describe('ExpenseContext Integration Tests', () => {
             );
         });
 
-        // Verify initial state
         expect(screen.getByText('Groceries - $150')).toBeInTheDocument();
         expect(screen.getByText('Utilities - $100')).toBeInTheDocument();
 
-        // Simulate deletion of the first expense
         await act(async () => {
             userEvent.click(screen.getAllByText('Delete Expense')[0]);
         });
 
-        // Verify the expense has been removed from the UI
         await waitFor(() => {
             expect(ExpenseService.deleteExpense).toHaveBeenCalledWith(initialExpenses[0].expensesId);
             expect(screen.queryByText('Groceries - $150')).not.toBeInTheDocument();
-            expect(screen.getByText('Utilities - $100')).toBeInTheDocument(); // The second expense should still be present
+            expect(screen.getByText('Utilities - $100')).toBeInTheDocument();
         });
     });
-
-
 });

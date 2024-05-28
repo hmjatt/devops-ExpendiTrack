@@ -8,7 +8,7 @@ const BudgetBarChart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [noData, setNoData] = useState(false);
-    const { chartData: budgetChartData, fetchBudgetCategoriesForChart } = useBudgetContext(); // Retrieve chartData and fetchBudgetCategoriesForChart method
+    const { chartData: budgetChartData, fetchBudgetCategoriesForChart } = useBudgetContext();
 
     const prepareChartData = useCallback(() => {
         if (budgetChartData && budgetChartData.length > 0) {
@@ -45,8 +45,10 @@ const BudgetBarChart = () => {
             setNoData(false);
             try {
                 const userId = 1; // Replace with the actual user ID
-                await fetchBudgetCategoriesForChart(userId); // Call the fetchBudgetCategoriesForChart method to retrieve chart data
+                console.log("Fetching data for user ID:", userId); // Log user ID
+                await fetchBudgetCategoriesForChart(userId);
             } catch (error) {
+                console.error('Failed to load budget chart data:', error.response ? error.response.data : error.message || error);
                 setError('Failed to load budget chart data. Please refresh the page to try again.');
                 setLoading(false);
             }

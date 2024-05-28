@@ -8,12 +8,12 @@ const BudgetPieChart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [noData, setNoData] = useState(false);
-    const { budgets, fetchBudgets } = useBudgetContext();
+    const { chartData: budgetChartData, fetchBudgetCategoriesForChart } = useBudgetContext();
 
     const prepareChartData = useCallback(() => {
-        if (budgets && budgets.length > 0) {
-            const labels = budgets.map(budget => budget.budgetDescription);
-            const values = budgets.map(budget => budget.budgetAmount);
+        if (budgetChartData && budgetChartData.length > 0) {
+            const labels = budgetChartData.map(budget => budget.name);
+            const values = budgetChartData.map(budget => budget.amount);
 
             setChartData({
                 labels: labels,
@@ -36,24 +36,30 @@ const BudgetPieChart = () => {
             setLoading(false);
             setNoData(true);
         }
-    }, [budgets]);
+    }, [budgetChartData]);
 
     useEffect(() => {
-        const loadBudgets = async () => {
+        const loadBudgetChartData = async () => {
             setLoading(true);
             setError(null);
             setNoData(false);
             try {
-                await fetchBudgets(); // calling fetchBudgets method to retrieve budget
-                prepareChartData(); // prepare dat for chart
+                const userId = 1; // Replace with the actual user ID
+                console.log("Fetching data for user ID:", userId); // Log user ID
+                await fetchBudgetCategoriesForChart(userId);
             } catch (error) {
-                setError('Failed to load budgets. Please refresh the page to try again.');
+                console.error('Failed to load budget chart data:', error.response ? error.response.data : error.message || error);
+                setError('Failed to load budget chart data. Please refresh the page to try again.');
                 setLoading(false);
             }
         };
 
-        loadBudgets();
-    }, [fetchBudgets, prepareChartData])
+        loadBudgetChartData();
+    }, [fetchBudgetCategoriesForChart]);
+
+    useEffect(() => {
+        prepareChartData(); // Prepare chart data only when budgetChartData changes
+    }, [budgetChartData, prepareChartData]);
 
     if (loading) {
         return <div>Loading...</div>;
