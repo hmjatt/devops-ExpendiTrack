@@ -136,10 +136,12 @@ public class BudgetController {
                                                                                                     @PathVariable Long userId) {
         System.out.println("Fetching budget names and amounts for userId: " + userId); // Log userId
         List<BudgetService.BudgetNameAndAmount> budgetNamesAndAmounts = budgetService.getBudgetNamesAndAmountsByUserId(userId);
+        System.out.println("Budget names and amounts: " + budgetNamesAndAmounts); // Log the result
         if (budgetNamesAndAmounts == null || budgetNamesAndAmounts.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.ok(budgetNamesAndAmounts);
     }
+
 
 }

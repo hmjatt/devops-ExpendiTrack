@@ -11,7 +11,7 @@ export const BudgetProvider = ({ children }) => {
     const [budgets, setBudgets] = useState([]);
     const { user } = useUserContext();
     const [error, setError] = useState('');
-    const [chartData, setChartData] = useState([]); // Adding new variables for budget chart data
+    const [chartData, setChartData] = useState([]);
 
     const { t, i18n } = useTranslation();
 
@@ -58,16 +58,13 @@ export const BudgetProvider = ({ children }) => {
     const fetchBudgetCategoriesForChart = useCallback(async (userId) => {
         try {
             const data = await getBudgetCategoriesForChart(userId);
-            console.log('Fetched data:', data); // Add log
             if (data && Array.isArray(data)) {
                 setChartData(data);
             } else {
-                console.error("Invalid response format", data); // Add data to log
                 setChartData([]);
             }
         } catch (error) {
-            console.error("Failed to fetch budget categories for chart:", error.response ? error.response.data : error.message || error);
-            setChartData([]); // Set default empty array in case of error
+            setChartData([]);
         }
     }, []);
 
@@ -81,6 +78,7 @@ export const BudgetProvider = ({ children }) => {
 
     useEffect(() => {
         if (userId) {
+            console.log("Fetching data for userId:", userId); // Log userId
             fetchBudgets(userId);
             fetchBudgetCategoriesForChart(userId);
         }
@@ -93,6 +91,7 @@ export const BudgetProvider = ({ children }) => {
                 userId: userId,
             });
             setBudgets(prevBudgets => [...prevBudgets, response]);
+            fetchBudgetCategoriesForChart(userId); // Fetch updated chart data
             setError('');
         } catch (error) {
             if (error.message.startsWith("A budget with the name")) {
@@ -107,7 +106,7 @@ export const BudgetProvider = ({ children }) => {
                 setError(t(key));
             }
         }
-    }, [userId, errorMapping, t]);
+    }, [userId, fetchBudgetCategoriesForChart, errorMapping, t]);
 
     const updateExistingBudget = useCallback(async (budgetId, budgetData) => {
         if (!budgetId) {
@@ -119,6 +118,7 @@ export const BudgetProvider = ({ children }) => {
             setBudgets((prevBudgets) =>
                 prevBudgets.map((budget) => budget.id === budgetId ? { ...budget, ...updatedBudget } : budget)
             );
+            fetchBudgetCategoriesForChart(userId); // Fetch updated chart data
             setError('');
         } catch (error) {
             if (error.message.startsWith("A budget with the name")) {
@@ -133,18 +133,19 @@ export const BudgetProvider = ({ children }) => {
                 setError(t(key));
             }
         }
-    }, [setBudgets, setError, errorMapping, t]);
+    }, [setBudgets, setError, fetchBudgetCategoriesForChart, errorMapping, t]);
 
     const removeBudget = useCallback(async (budgetId) => {
         try {
             await deleteBudget(budgetId);
             setBudgets(prevBudgets => prevBudgets.filter(budget => budget.id !== budgetId));
+            fetchBudgetCategoriesForChart(userId); // Fetch updated chart data
             setError('');
         } catch (error) {
             const errorMessage = error.message || 'An unexpected error occurred';
             setError(errorMessage);
         }
-    }, [setBudgets, setError]);
+    }, [setBudgets, setError, fetchBudgetCategoriesForChart]);
 
     const resetError = useCallback(() => setError(''), []);
 
