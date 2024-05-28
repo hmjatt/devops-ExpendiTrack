@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { useBudgetContext } from '../contexts/BudgetContext';
+import { useUserContext } from '../contexts/UserContext';
 import 'chart.js/auto';
 
 const BudgetPieChart = () => {
@@ -9,6 +10,7 @@ const BudgetPieChart = () => {
     const [error, setError] = useState(null);
     const [noData, setNoData] = useState(false);
     const { chartData: budgetChartData, fetchBudgetCategoriesForChart } = useBudgetContext();
+    const { user } = useUserContext();
 
     const prepareChartData = useCallback(() => {
         if (budgetChartData && budgetChartData.length > 0) {
@@ -44,9 +46,9 @@ const BudgetPieChart = () => {
             setError(null);
             setNoData(false);
             try {
-                const userId = 1; // Replace with the actual user ID
-                console.log("Fetching data for user ID:", userId); // Log user ID
-                await fetchBudgetCategoriesForChart(userId);
+                if (user?.id) {
+                    await fetchBudgetCategoriesForChart(user.id);
+                }
             } catch (error) {
                 console.error('Failed to load budget chart data:', error.response ? error.response.data : error.message || error);
                 setError('Failed to load budget chart data. Please refresh the page to try again.');
@@ -54,11 +56,13 @@ const BudgetPieChart = () => {
             }
         };
 
-        loadBudgetChartData();
-    }, [fetchBudgetCategoriesForChart]);
+        if (user?.id) {
+            loadBudgetChartData();
+        }
+    }, [user?.id, fetchBudgetCategoriesForChart]);
 
     useEffect(() => {
-        prepareChartData(); // Prepare chart data only when budgetChartData changes
+        prepareChartData();
     }, [budgetChartData, prepareChartData]);
 
     if (loading) {

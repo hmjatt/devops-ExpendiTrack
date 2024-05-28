@@ -116,7 +116,7 @@ export const BudgetProvider = ({ children }) => {
         try {
             const updatedBudget = await updateBudget(budgetId, budgetData);
             setBudgets((prevBudgets) =>
-                prevBudgets.map((budget) => budget.id === budgetId ? { ...budget, ...updatedBudget } : budget)
+                prevBudgets.map((budget) => budget.budgetId === budgetId ? { ...budget, ...updatedBudget } : budget)
             );
             fetchBudgetCategoriesForChart(userId); // Fetch updated chart data
             setError('');
@@ -138,7 +138,7 @@ export const BudgetProvider = ({ children }) => {
     const removeBudget = useCallback(async (budgetId) => {
         try {
             await deleteBudget(budgetId);
-            setBudgets(prevBudgets => prevBudgets.filter(budget => budget.id !== budgetId));
+            setBudgets(prevBudgets => prevBudgets.filter(budget => budget.budgetId !== budgetId));
             fetchBudgetCategoriesForChart(userId); // Fetch updated chart data
             setError('');
         } catch (error) {
