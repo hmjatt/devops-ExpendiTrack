@@ -93,9 +93,9 @@ describe('BudgetContext Integration Tests', () => {
         await act(async () => {
             render(
                 <I18nextProvider i18n={i18next}>
-                <BudgetProvider>
-                    <TestComponent />
-                </BudgetProvider>
+                    <BudgetProvider>
+                        <TestComponent />
+                    </BudgetProvider>
                 </I18nextProvider>
             );
         });
@@ -211,11 +211,11 @@ describe('BudgetContext Integration Tests', () => {
         await act(async () => {
             render(
                 <I18nextProvider i18n={i18next}>
-                <BrowserRouter>
-                    <BudgetProvider>
-                        <TestComponent />
-                    </BudgetProvider>
-                </BrowserRouter>
+                    <BrowserRouter>
+                        <BudgetProvider>
+                            <TestComponent />
+                        </BudgetProvider>
+                    </BrowserRouter>
                 </I18nextProvider>
             );
         });

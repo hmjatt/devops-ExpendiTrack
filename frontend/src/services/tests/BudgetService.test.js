@@ -1,7 +1,7 @@
 
 jest.mock('axios');
 import axios from 'axios';
-import {createBudget, deleteBudget, getBudgetsByUserId, updateBudget} from '../BudgetService';
+import {createBudget, deleteBudget, getBudgetsByUserId, updateBudget, getBudgetCategoriesForChart} from '../BudgetService';
 
 describe('BudgetService', () => {
     // Verify Successful Budget Creation
@@ -218,7 +218,38 @@ describe('BudgetService', () => {
 
         await expect(deleteBudget(budgetId)).rejects.toThrow(errorMessage);
     });
+    // New test added: Validate successful retrieval of budget category and amount data.
+    it('should fetch budget categories and amounts successfully', async () => {
+        const userId = 1;
+        const mockResponse = [
+            { name: 'Category1', amount: 100 },
+            { name: 'Category2', amount: 200 }
+        ];
 
+        axios.get.mockResolvedValue({ data: mockResponse });
+
+        await expect(getBudgetCategoriesForChart(userId)).resolves.toEqual(mockResponse);
+    });
+
+    // New test added: Validate handling of server errors when retrieving budget category and amount data.
+    it('should handle server error during fetching budget categories and amounts', async () => {
+        const userId = 1;
+        const errorMessage = 'Failed to fetch budget categories for chart.';
+
+        axios.get.mockRejectedValue(new Error(errorMessage));
+
+        await expect(getBudgetCategoriesForChart(userId)).rejects.toThrow(errorMessage);
+    });
+
+    // New test added: Validate retrieval of budget category and amount data when user does not exist.
+    it('should handle user not existing during fetching budget categories and amounts', async () => {
+        const userId = 999; // 假设该用户ID不存在
+        const errorMessage = 'User not found';
+
+        axios.get.mockRejectedValue({ response: { data: errorMessage } });
+
+        await expect(getBudgetCategoriesForChart(userId)).rejects.toThrow('User not found');
+    });
 });
 
 
