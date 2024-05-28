@@ -12,7 +12,7 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18n from "i18next";
 import enTranslations from "../../translations/en/common.json";
 import frTranslations from "../../translations/fr/common.json";
-import BudgetPieChart from '../BudgetPieChart';
+import BudgetBarChart from '../BudgetBarChart';
 
 jest.mock('../../services/BudgetService');
 
@@ -25,7 +25,7 @@ jest.mock('../../contexts/UserContext', () => ({
 
 // Mock Chart.js
 jest.mock('react-chartjs-2', () => ({
-    Pie: () => <div data-testid="mock-pie-chart">Mock Pie Chart</div>,
+    Bar: () => <div data-testid="mock-bar-chart">Mock Bar Chart</div>,
 }));
 
 const resources = {
@@ -47,11 +47,11 @@ i18n
         },
     });
 
-describe('BudgetPieChart component', () => {
+describe('BudgetBarChart component', () => {
     const TestComponent = () => {
         return (
             <BudgetProvider>
-                <BudgetPieChart />
+                <BudgetBarChart />
             </BudgetProvider>
         );
     };
@@ -77,7 +77,7 @@ describe('BudgetPieChart component', () => {
         });
 
         await waitFor(() => {
-            expect(screen.getByTestId('mock-pie-chart')).toBeInTheDocument();
+            expect(screen.getByTestId('mock-bar-chart')).toBeInTheDocument();
         });
     });
 
