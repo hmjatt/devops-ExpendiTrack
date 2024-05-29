@@ -17,9 +17,12 @@ const DataList = () => {
                     throw new Error('Network response was not ok');
                 }
                 const result = await response.json();
+                if (typeof result !== 'object' || result === null) {
+                    throw new Error('Unexpected data structure');
+                }
                 const transformedData = Object.entries(result).map(([key, value]) => ({
                     string: key,
-                    int: value
+                    int: value !== null ? value : 0
                 }));
                 setData(transformedData);
             } catch (error) {

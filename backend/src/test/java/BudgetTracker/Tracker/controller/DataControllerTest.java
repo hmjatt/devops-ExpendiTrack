@@ -141,5 +141,141 @@ public class DataControllerTest{
 
         verify(expensesService).getExpensesGroupedByBudget();
     }
+
+    @Test
+    @DisplayName("Should handle negative expense amounts")
+    void getTotalExpensesByBudget_NegativeAmounts() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("Vacation", -100);
+        expensesByBudget.put("Groceries", 200);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"Vacation\":-100,\"Groceries\":200}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+    @Test
+    @DisplayName("Should handle null values in expense descriptions")
+    void getTotalExpensesByBudget_NullValues() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("Uncategorized", 300);
+        expensesByBudget.put("Groceries", 200);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"Uncategorized\":300,\"Groceries\":200}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+
+    @Test
+    @DisplayName("Should handle expenses with zero amount")
+    void getTotalExpensesByBudget_ZeroAmounts() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("Vacation", 0);
+        expensesByBudget.put("Groceries", 200);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"Vacation\":0,\"Groceries\":200}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+    @Test
+    @DisplayName("Should handle expenses from multiple users")
+    void getTotalExpensesByBudget_MultipleUsers() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("Vacation", 1000);
+        expensesByBudget.put("Leasure", 500);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"Vacation\":1000,\"Leasure\":500}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+    @Test
+    @DisplayName("Should handle large number of expenses")
+    void getTotalExpensesByBudget_LargeNumberOfExpenses() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        for (int i = 0; i < 1000; i++) {
+            expensesByBudget.put("Budget" + i, i * 10);
+        }
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+    @Test
+    @DisplayName("Should handle future date expenses")
+    void getTotalExpensesByBudget_FutureDate() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("Vacation", 1000);
+        expensesByBudget.put("Future Expense", 300);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"Vacation\":1000,\"Future Expense\":300}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+    @Test
+    @DisplayName("Should handle expenses without a budget")
+    void getTotalExpensesByBudget_NoBudget() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("No Budget", 150);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"No Budget\":150}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
+
+    @Test
+    @DisplayName("Should handle non-ASCII characters in budget descriptions")
+    void getTotalExpensesByBudget_NonAsciiCharacters() throws Exception {
+        Map<String, Integer> expensesByBudget = new HashMap<>();
+        expensesByBudget.put("休暇", 1000);
+        expensesByBudget.put("Groceries", 200);
+
+        when(expensesService.getExpensesGroupedByBudget()).thenReturn(expensesByBudget);
+
+        mockMvc.perform(get("/data/totalexpenses-by-budget")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"休暇\":1000,\"Groceries\":200}"));
+
+        verify(expensesService).getExpensesGroupedByBudget();
+    }
 }
 

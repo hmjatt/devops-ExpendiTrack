@@ -1,18 +1,23 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { useTranslation } from 'react-i18next';
-import { useExpenseContext } from '../../contexts/ExpenseContext'; // Adjust the path as necessary
+import { render, screen, waitFor, act } from '@testing-library/react';
 import DataList from '../DataList';
 
-jest.mock('react-i18next', () => ({
-    useTranslation: () => ({
-        t: (key) => key,
-        i18n: {
-            language: 'en',
-            changeLanguage: jest.fn(),
-        },
-    }),
-}));
+// Increase the Jest timeout for all tests in this file
+jest.setTimeout(30000);
+
+jest.mock('react-i18next', () => {
+    const originalModule = jest.requireActual('react-i18next');
+    return {
+        ...originalModule,
+        useTranslation: () => ({
+            t: (key) => key,
+            i18n: {
+                language: 'en',
+                changeLanguage: jest.fn(),
+            },
+        }),
+    };
+});
 
 jest.mock('../../contexts/ExpenseContext', () => ({ // Adjust the path as necessary
     useExpenseContext: () => ({
@@ -25,7 +30,7 @@ describe('DataList Component', () => {
         fetch.resetMocks();
     });
 
-    it('displays loading message initially', () => {
+    it('displays loading message initially', async () => {
         fetch.mockResponseOnce(JSON.stringify({}));
 
         render(<DataList />);
@@ -36,7 +41,9 @@ describe('DataList Component', () => {
     it('displays error message when fetch fails', async () => {
         fetch.mockReject(new Error('Network response was not ok'));
 
-        render(<DataList />);
+        await act(async () => {
+            render(<DataList />);
+        });
 
         await waitFor(() => expect(screen.getByText('Error: Network response was not ok')).toBeInTheDocument());
     });
@@ -44,7 +51,9 @@ describe('DataList Component', () => {
     it('displays no data message when data is empty', async () => {
         fetch.mockResponseOnce(JSON.stringify({}));
 
-        render(<DataList />);
+        await act(async () => {
+            render(<DataList />);
+        });
 
         await waitFor(() => expect(screen.getByText('app.dataListNotAvailable')).toBeInTheDocument());
     });
@@ -57,11 +66,88 @@ describe('DataList Component', () => {
 
         fetch.mockResponseOnce(JSON.stringify(mockData));
 
-        render(<DataList />);
+        await act(async () => {
+            render(<DataList />);
+        });
 
-        await waitFor(() => expect(screen.getByText('Budget 1')).toBeInTheDocument());
-        expect(screen.getByText('100')).toBeInTheDocument();
-        expect(screen.getByText('Budget 2')).toBeInTheDocument();
-        expect(screen.getByText('200')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText('Budget 1')).toBeInTheDocument();
+            expect(screen.getByText('100')).toBeInTheDocument();
+            expect(screen.getByText('Budget 2')).toBeInTheDocument();
+            expect(screen.getByText('200')).toBeInTheDocument();
+        });
+    });
+
+    // Additional Edge Case Tests
+    it('handles null values gracefully', async () => {
+        const mockData = {
+            "Budget 1": 100,
+            "Budget 2": null
+        };
+
+        fetch.mockResponseOnce(JSON.stringify(mockData));
+
+        await act(async () => {
+            render(<DataList />);
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText('Budget 1')).toBeInTheDocument();
+            expect(screen.getByText('100')).toBeInTheDocument();
+            expect(screen.getByText('Budget 2')).toBeInTheDocument();
+            expect(screen.getByText('0')).toBeInTheDocument(); // Ensuring null is handled as 0
+        });
+    });
+
+    it('handles unexpected data structure', async () => {
+        const mockData = "Unexpected data structure";
+
+        fetch.mockResponseOnce(JSON.stringify(mockData));
+
+        await act(async () => {
+            render(<DataList />);
+        });
+
+        await waitFor(() => expect(screen.getByText('Error: Unexpected data structure')).toBeInTheDocument());
+    });
+
+    it('handles large data sets', async () => {
+        const mockData = {};
+        for (let i = 1; i <= 1000; i++) {
+            mockData[`Budget ${i}`] = i * 10;
+        }
+
+        fetch.mockResponseOnce(JSON.stringify(mockData));
+
+        await act(async () => {
+            render(<DataList />);
+        });
+
+        await waitFor(() => {
+            for (let i = 1; i <= 1000; i++) {
+                expect(screen.getByText(`Budget ${i}`)).toBeInTheDocument();
+                expect(screen.getByText(`${i * 10}`)).toBeInTheDocument();
+            }
+        });
+    });
+
+    it('handles special characters in budget descriptions', async () => {
+        const mockData = {
+            "休暇": 100,
+            "Groceries": 200
+        };
+
+        fetch.mockResponseOnce(JSON.stringify(mockData));
+
+        await act(async () => {
+            render(<DataList />);
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText('休暇')).toBeInTheDocument();
+            expect(screen.getByText('100')).toBeInTheDocument();
+            expect(screen.getByText('Groceries')).toBeInTheDocument();
+            expect(screen.getByText('200')).toBeInTheDocument();
+        });
     });
 });

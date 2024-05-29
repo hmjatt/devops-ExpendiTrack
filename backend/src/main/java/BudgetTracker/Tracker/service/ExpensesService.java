@@ -193,11 +193,18 @@ public class ExpensesService {
             logger.info("No expenses found for grouping by category.");
             return Collections.emptyMap();
         }
+
         Map<String, Integer> result = allExpenses.stream()
                 .collect(Collectors.groupingBy(
-                        e -> e.getBudget().getBudgetDescription(),
+                        e -> {
+                            String description = (e.getBudget() != null && e.getBudget().getBudgetDescription() != null)
+                                    ? e.getBudget().getBudgetDescription()
+                                    : "Uncategorized";
+                            return description;
+                        },
                         Collectors.summingInt(Expenses::getExpensesAmount)
                 ));
+
         logger.info("Expenses grouped by category: " + result);
         return result;
     }
