@@ -20,7 +20,7 @@ public class DataController {
     private ExpensesService expensesService;
 
     /**
-     * Endpoint to retrieve expenses grouped by category.
+     * Endpoint to retrieve expenses grouped by budget.
      *
      * @return A ResponseEntity containing a map where the key is the budget budget
      * and the value is the total amount of expenses for that budget.
