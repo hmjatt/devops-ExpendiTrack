@@ -458,3 +458,22 @@
 .logout-btns .btn{
     margin: 7px;
 }
+
+/* Container for charts within Dashboard */
+.chart-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;  /* Add some top margin */
+}
+
+
+.budget-bar-chart-container,
+.pie-chart-container {
+    flex: 0 0 45%;
+    min-width: 300px;
+    max-width: 600px;
+}
+

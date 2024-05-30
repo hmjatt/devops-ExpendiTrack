@@ -279,7 +279,7 @@ public class ExpensesControllerTest {
                 .andExpect(content().string("Expense with ID 1 not found"));
 
         verify(expensesService).deleteExpense(expenseId);
-    }
+        }
 
     }
 

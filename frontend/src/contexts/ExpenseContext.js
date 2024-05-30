@@ -101,6 +101,9 @@ export const ExpenseProvider = ({ children }) => {
         if (!userId) return;
 
         try {
+
+            const updatedExpense = await updateExpense(expenseId, expenseData);
+
             setExpenses(prevExpenses => prevExpenses.map(exp =>
                 exp.expensesId === expenseId ? { ...exp, ...expenseData } : exp
             ));
