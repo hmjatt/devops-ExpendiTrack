@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 // Use the environment variable for the API base URL
-const API_URL = `${process.env.REACT_APP_API_URL}/budgets`;
+const API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/budgets`;
 
 export const createBudget = (budgetData) => {
     return axios.post(API_URL, budgetData)

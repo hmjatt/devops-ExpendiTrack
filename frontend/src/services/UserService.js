@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use the environment variable for the API base URL
-const API_URL = `${process.env.REACT_APP_API_URL}/users`;
+const API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/users`;
 
 // Function to create a user by sending a POST request
 export const createUser = (userData) => axios.post(API_URL, userData)

@@ -6,7 +6,7 @@ import { BudgetContext } from '../../contexts/BudgetContext';
 import { ExpenseContext } from '../../contexts/ExpenseContext';
 import Dashboard from '..//Dashboard';
 import axios from 'axios';
-import {I18nextProvider, initReactI18next} from "react-i18next";
+import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18next from "i18next";
 
 import enTranslations from "../../translations/en/common.json";
@@ -81,8 +81,12 @@ describe('Dashboard Component', () => {
             expect(screen.getByText("Budget Amount: $500.00")).toBeInTheDocument();
         });
 
-
         // Validate if the user's name is rendered
         expect(screen.getByText(`Welcome, Harmeet!`)).toBeInTheDocument();
+
+        // Check if the BarChart component is rendered
+        await waitFor(() => {
+            expect(screen.getByText('Expenses by Category')).toBeInTheDocument();
+        });
     });
 });

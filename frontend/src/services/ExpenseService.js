@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const API_URL = `${process.env.REACT_APP_API_URL}/expenses`;
+const API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/expenses`;
 
 export const getUserExpenses = ( userId ) => {
     return axios.get( `${API_URL}/user/${userId}` )
