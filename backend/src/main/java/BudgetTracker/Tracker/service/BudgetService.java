@@ -29,6 +29,8 @@ public class BudgetService {
 
     @Autowired
     private UserService userService;
+
+
     /**
      * Retrieves budgets associated with a specific user.
      *
@@ -40,11 +42,13 @@ public class BudgetService {
         return budgetRepository.findByUserId(userId);
     }
 
+
     /**
      *     created by Emily 05/16
      *     To add log
       */
     private static final Logger logger = Logger.getLogger(BudgetService.class.getName());
+
 
     /**
      * Creates a new budget.
@@ -78,6 +82,7 @@ public class BudgetService {
 
         return budgetRepository.save(budget);
     }
+
     /**
      * Checks if a string contains only alphanumeric characters.
      *
@@ -137,6 +142,7 @@ public class BudgetService {
         budgetRepository.deleteById(id);
     }
 
+
     /**
      * Retrieves budget names and amounts by user ID.
      *
@@ -166,6 +172,7 @@ public class BudgetService {
             return amount;
         }
     }
+
 
 
 }

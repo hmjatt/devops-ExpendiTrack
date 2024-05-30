@@ -6,6 +6,7 @@ import AddBudgetForm from "../components/AddBudgetForm";
 import { useExpenseContext } from "../contexts/ExpenseContext";
 import '../styles/Dashboard.css';
 import { useTranslation } from "react-i18next";
+import DataList from "../components/DataList";
 import BarChart from "../components/BarChart";
 import BudgetPieChart from "../components/BudgetPieChart";
 import BudgetBarChart from '../components/BudgetBarChart';
@@ -39,6 +40,7 @@ const Dashboard = () => {
                     <BudgetList budgets={budgets} />
                 </div>
             </div>
+
             <div className="chart-container">
                 <div className="pie-chart-container">
                     <BudgetPieChart />
@@ -48,6 +50,7 @@ const Dashboard = () => {
                 </div>
 
             </div>
+
         </div>
     );
 };

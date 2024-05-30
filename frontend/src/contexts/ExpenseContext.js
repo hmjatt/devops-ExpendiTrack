@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { getUserExpenses, createExpense, updateExpense, deleteExpense } from '../services/ExpenseService';
+import { getUserExpenses, createExpense, deleteExpense } from '../services/ExpenseService';
 import { useUserContext } from "./UserContext";
 import { useTranslation } from "react-i18next";
 
@@ -101,7 +101,9 @@ export const ExpenseProvider = ({ children }) => {
         if (!userId) return;
 
         try {
+
             const updatedExpense = await updateExpense(expenseId, expenseData);
+
             setExpenses(prevExpenses => prevExpenses.map(exp =>
                 exp.expensesId === expenseId ? { ...exp, ...expenseData } : exp
             ));
