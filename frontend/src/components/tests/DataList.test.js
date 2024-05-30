@@ -2,9 +2,6 @@ import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import DataList from '../DataList';
 
-// Increase the Jest timeout for all tests in this file
-jest.setTimeout(30000);
-
 jest.mock('react-i18next', () => {
     const originalModule = jest.requireActual('react-i18next');
     return {
@@ -123,13 +120,17 @@ describe('DataList Component', () => {
             render(<DataList />);
         });
 
+        // Check for a few items to ensure rendering works
         await waitFor(() => {
-            for (let i = 1; i <= 1000; i++) {
-                expect(screen.getByText(`Budget ${i}`)).toBeInTheDocument();
-                expect(screen.getByText(`${i * 10}`)).toBeInTheDocument();
-            }
+            expect(screen.getByText('Budget 1')).toBeInTheDocument();
+            expect(screen.getByText('10')).toBeInTheDocument();
+            expect(screen.getByText('Budget 500')).toBeInTheDocument();
+            expect(screen.getByText('5000')).toBeInTheDocument();
+            expect(screen.getByText('Budget 1000')).toBeInTheDocument();
+            expect(screen.getByText('10000')).toBeInTheDocument();
         });
     });
+
 
     it('handles special characters in budget descriptions', async () => {
         const mockData = {

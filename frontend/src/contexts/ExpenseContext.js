@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { getUserExpenses, createExpense, deleteExpense } from '../services/ExpenseService';
+import {getUserExpenses, createExpense, deleteExpense, updateExpense} from '../services/ExpenseService';
 import { useUserContext } from "./UserContext";
 import { useTranslation } from "react-i18next";
 

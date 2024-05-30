@@ -1,6 +1,6 @@
-import { act } from 'react';
 import React, { useEffect, useContext } from 'react';
 import {
+    act,
     render,
     waitFor,
     screen,

@@ -51,6 +51,9 @@ const Dashboard = () => {
 
             </div>
 
+            <DataList />
+            <BarChart />
+
         </div>
     );
 };
