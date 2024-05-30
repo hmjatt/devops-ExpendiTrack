@@ -210,7 +210,7 @@ const BudgetItem = ({ budget }) => {
                 </div>
             </BasicModal>}
         </div>
-);
+    );
 };
 
 export default BudgetItem;

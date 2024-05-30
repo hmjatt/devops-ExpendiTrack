@@ -182,6 +182,36 @@ public class ExpensesService {
     private static final Logger logger = Logger.getLogger(ExpensesService.class.getName());
 
     /**
+
+     * Retrieves expenses grouped by their Budget.
+     *
+     * @return A map where the key is the budget category and the value is the total expense for that budget.
+     * If no expenses are found, an empty map is returned.
+     */
+    public Map<String, Integer> getExpensesGroupedByBudget() {
+        List<Expenses> allExpenses = expenseRepository.findAll();
+        if (allExpenses.isEmpty()) {
+            logger.info("No expenses found for grouping by category.");
+            return Collections.emptyMap();
+        }
+
+
+                .collect(Collectors.groupingBy(
+                        e -> {
+                            String description = (e.getBudget() != null && e.getBudget().getBudgetDescription() != null)
+                                    ? e.getBudget().getBudgetDescription()
+                                    : "Uncategorized";
+                            return description;
+                        },
+                        Collectors.summingInt(Expenses::getExpensesAmount)
+                ));
+
+        logger.info("Expenses grouped by category for user with ID " + userId + ": " + result);
+
+        return result;
+    }
+
+    /**
      * Retrieves expenses grouped by their category for a specific user.
      *
      * @param userId The ID of the user whose expenses to retrieve.
@@ -202,8 +232,6 @@ public class ExpensesService {
         logger.info("Expenses grouped by category for user with ID " + userId + ": " + result);
         return result;
     }
-
-
 }
 
 

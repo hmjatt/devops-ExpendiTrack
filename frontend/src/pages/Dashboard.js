@@ -6,7 +6,7 @@ import AddBudgetForm from "../components/AddBudgetForm";
 import { useExpenseContext } from "../contexts/ExpenseContext";
 import '../styles/Dashboard.css';
 import { useTranslation } from "react-i18next";
-import BarChart from "../components/BarChart";
+import DataList from "../components/DataList";
 
 /**
  * Dashboard component renders the main dashboard with budget and expense details.
@@ -47,8 +47,7 @@ const Dashboard = () => {
                     <BudgetList budgets={budgets} />
                 </div>
             </div>
-
-            <BarChart />
+                <DataList/>
         </div>
     );
 };
