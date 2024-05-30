@@ -182,6 +182,7 @@ public class ExpensesService {
     private static final Logger logger = Logger.getLogger(ExpensesService.class.getName());
 
     /**
+
      * Retrieves expenses grouped by their Budget.
      *
      * @return A map where the key is the budget category and the value is the total expense for that budget.
@@ -194,7 +195,7 @@ public class ExpensesService {
             return Collections.emptyMap();
         }
 
-        Map<String, Integer> result = allExpenses.stream()
+
                 .collect(Collectors.groupingBy(
                         e -> {
                             String description = (e.getBudget() != null && e.getBudget().getBudgetDescription() != null)
@@ -205,7 +206,8 @@ public class ExpensesService {
                         Collectors.summingInt(Expenses::getExpensesAmount)
                 ));
 
-        logger.info("Expenses grouped by category: " + result);
+        logger.info("Expenses grouped by category for user with ID " + userId + ": " + result);
+
         return result;
     }
 
