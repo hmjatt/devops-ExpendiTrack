@@ -429,4 +429,167 @@ public class ExpensesServiceTest{
     }
 
 
+
+
+//    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+    @Test
+    void getExpensesGroupedByCategory_ReturnsData() {
+        Long userId = 1L;
+
+        // Prepare test data
+        Expenses expense1 = new Expenses();
+        expense1.setExpensesDescription("Food");
+        expense1.setExpensesAmount(100);
+        expense1.setBudget(budget);
+
+        Expenses expense2 = new Expenses();
+        expense2.setExpensesDescription("Transport");
+        expense2.setExpensesAmount(50);
+        expense2.setBudget(budget);
+
+        Expenses expense3 = new Expenses();
+        expense3.setExpensesDescription("Food");
+        expense3.setExpensesAmount(150);
+        expense3.setBudget(budget);
+
+        List<Expenses> expensesList = List.of(expense1, expense2, expense3);
+
+        // Mock the repository method
+        when(expensesRepository.findByBudget_User_Id(userId)).thenReturn(expensesList);
+
+        // Call the service method
+        Map<String, Integer> result = expensesService.getExpensesGroupedByCategory(userId);
+
+        // Prepare the expected result
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("Food", 250);
+        expected.put("Transport", 50);
+
+        // Verify the result
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void getExpensesGroupedByCategory_ReturnsEmptyMap() {
+        Long userId = 1L;
+
+        // Mock the repository method to return an empty list
+        when(expensesRepository.findByBudget_User_Id(userId)).thenReturn(Collections.emptyList());
+
+        // Call the service method
+        Map<String, Integer> result = expensesService.getExpensesGroupedByCategory(userId);
+
+        // Verify the result is an empty map
+        assertEquals(Collections.emptyMap(), result);
+    }
+
+    @Test
+    void getExpensesGroupedByCategory_SingleExpense() {
+        Long userId = 1L;
+
+        // Prepare test data
+        Expenses expense = new Expenses();
+        expense.setExpensesDescription("Utilities");
+        expense.setExpensesAmount(200);
+        expense.setBudget(budget);
+
+        List<Expenses> expensesList = List.of(expense);
+
+        // Mock the repository method
+        when(expensesRepository.findByBudget_User_Id(userId)).thenReturn(expensesList);
+
+        // Call the service method
+        Map<String, Integer> result = expensesService.getExpensesGroupedByCategory(userId);
+
+        // Prepare the expected result
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("Utilities", 200);
+
+        // Verify the result
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void getExpensesGroupedByCategory_LargeNumberOfCategories() {
+        Long userId = 1L;
+
+        // Prepare test data with a large number of categories
+        List<Expenses> expensesList = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            Expenses expense = new Expenses();
+            expense.setExpensesDescription("Category" + i);
+            expense.setExpensesAmount(i);
+            expense.setBudget(budget);
+            expensesList.add(expense);
+        }
+
+        // Mock the repository method
+        when(expensesRepository.findByBudget_User_Id(userId)).thenReturn(expensesList);
+
+        // Call the service method
+        Map<String, Integer> result = expensesService.getExpensesGroupedByCategory(userId);
+
+        // Verify the result
+        for (int i = 0; i < 1000; i++) {
+            assertEquals(i, result.get("Category" + i));
+        }
+    }
+
+    @Test
+    void getExpensesGroupedByCategory_NegativeAmounts() {
+        Long userId = 1L;
+
+        // Prepare test data with negative amounts
+        Expenses expense = new Expenses();
+        expense.setExpensesDescription("Refunds");
+        expense.setExpensesAmount(-50);
+        expense.setBudget(budget);
+
+        List<Expenses> expensesList = List.of(expense);
+
+        // Mock the repository method
+        when(expensesRepository.findByBudget_User_Id(userId)).thenReturn(expensesList);
+
+        // Call the service method
+        Map<String, Integer> result = expensesService.getExpensesGroupedByCategory(userId);
+
+        // Prepare the expected result
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("Refunds", -50);
+
+        // Verify the result
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void getExpensesGroupedByCategory_LargeAmounts() {
+        Long userId = 1L;
+
+        // Prepare test data with large amounts
+        Expenses expense = new Expenses();
+        expense.setExpensesDescription("Project");
+        expense.setExpensesAmount(Integer.MAX_VALUE);
+        expense.setBudget(budget);
+
+        List<Expenses> expensesList = List.of(expense);
+
+        // Mock the repository method
+        when(expensesRepository.findByBudget_User_Id(userId)).thenReturn(expensesList);
+
+        // Call the service method
+        Map<String, Integer> result = expensesService.getExpensesGroupedByCategory(userId);
+
+        // Prepare the expected result
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("Project", Integer.MAX_VALUE);
+
+        // Verify the result
+        assertEquals(expected, result);
+    }
+
 }
+

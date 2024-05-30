@@ -208,6 +208,28 @@ public class ExpensesService {
         logger.info("Expenses grouped by category: " + result);
         return result;
     }
+
+    /**
+     * Retrieves expenses grouped by their category for a specific user.
+     *
+     * @param userId The ID of the user whose expenses to retrieve.
+     * @return A map where the key is the expense category and the value is the total amount for that category.
+     * If no expenses are found, an empty map is returned.
+     */
+    public Map<String, Integer> getExpensesGroupedByCategory(Long userId) {
+        List<Expenses> userExpenses = expenseRepository.findByBudget_User_Id(userId);
+        if (userExpenses.isEmpty()) {
+            logger.info("No expenses found for grouping by category for user with ID " + userId);
+            return Collections.emptyMap();
+        }
+        Map<String, Integer> result = userExpenses.stream()
+                .collect(Collectors.groupingBy(
+                        Expenses::getExpensesDescription,
+                        Collectors.summingInt(Expenses::getExpensesAmount)
+                ));
+        logger.info("Expenses grouped by category for user with ID " + userId + ": " + result);
+        return result;
+    }
 }
 
 
