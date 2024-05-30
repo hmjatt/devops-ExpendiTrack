@@ -7,6 +7,7 @@ import { useExpenseContext } from "../contexts/ExpenseContext";
 import '../styles/Dashboard.css';
 import { useTranslation } from "react-i18next";
 import DataList from "../components/DataList";
+import BarChart from "../components/BarChart";
 
 /**
  * Dashboard component renders the main dashboard with budget and expense details.
@@ -47,7 +48,8 @@ const Dashboard = () => {
                     <BudgetList budgets={budgets} />
                 </div>
             </div>
-                <DataList/>
+            <DataList/>
+            <BarChart />
         </div>
     );
 };
