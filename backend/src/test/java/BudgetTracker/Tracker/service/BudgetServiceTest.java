@@ -223,4 +223,23 @@ public class BudgetServiceTest {
                 "Expected deleteBudget to throw, but it didn't");
     }
 
+
+    @Test
+    @DisplayName("Get budget names and amounts by user ID")
+    void testGetBudgetNamesAndAmountsByUserId() {
+        Long userId = 1L;
+        List<Budget> userBudgets = Arrays.asList(budget1, budget2);
+        when(budgetRepository.findByUserId(userId)).thenReturn(userBudgets);
+
+        List<BudgetService.BudgetNameAndAmount> result = budgetService.getBudgetNamesAndAmountsByUserId(userId);
+
+        assertEquals(2, result.size());
+        assertEquals("Vacation", result.get(0).getName());
+        assertEquals(1000, result.get(0).getAmount());
+        assertEquals("Groceries", result.get(1).getName());
+        assertEquals(500, result.get(1).getAmount());
+
+        verify(budgetRepository, times(1)).findByUserId(userId);
+    }
+
 }
