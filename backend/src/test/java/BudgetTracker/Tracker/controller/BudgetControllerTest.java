@@ -18,6 +18,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -183,6 +186,34 @@ class BudgetControllerTest {
         mockMvc.perform(delete("/budgets/{id}", invalidBudgetId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getBudgetNamesAndAmountsByUserId_Success() throws Exception {
+        Long userId = 1L;
+        BudgetService.BudgetNameAndAmount budget1 = new BudgetService.BudgetNameAndAmount("Holiday", 1000);
+        BudgetService.BudgetNameAndAmount budget2 = new BudgetService.BudgetNameAndAmount("Savings", 2000);
+
+        List<BudgetService.BudgetNameAndAmount> budgetList = Arrays.asList(budget1, budget2);
+
+        when(budgetService.getBudgetNamesAndAmountsByUserId(userId)).thenReturn(budgetList);
+
+        mockMvc.perform(get("/budgets/user/{userId}/names-and-amounts", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{'name':'Holiday','amount':1000},{'name':'Savings','amount':2000}]"));
+    }
+
+    @Test
+    void getBudgetNamesAndAmountsByUserId_NotFound() throws Exception {
+        Long userId = 999L;
+
+        when(budgetService.getBudgetNamesAndAmountsByUserId(userId)).thenThrow(new UserNotFoundException("User not found"));
+
+        mockMvc.perform(get("/budgets/user/{userId}/names-and-amounts", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("User not found")));
     }
 
  }

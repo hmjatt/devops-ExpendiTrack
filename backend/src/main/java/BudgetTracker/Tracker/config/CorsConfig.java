@@ -16,7 +16,7 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost", "http://nginx", "http://selenium", "http://frontend"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost", "http://nginx", "http://selenium", "http://frontend", "https://dev.jack.hc-sc.gc.ca"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

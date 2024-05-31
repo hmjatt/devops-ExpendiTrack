@@ -163,6 +163,16 @@
     border: 1px solid #eaeaea;
 }
 
+.data-list-container {
+    flex: 2;
+    background-color: #e1f1ea;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    border: 1px solid #eaeaea;
+}
+
 .expense-list-container {
     background-color: #e0f1f6;
     display: flex;
@@ -448,3 +458,22 @@
 .logout-btns .btn{
     margin: 7px;
 }
+
+/* Container for charts within Dashboard */
+.chart-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;  /* Add some top margin */
+}
+
+
+.budget-bar-chart-container,
+.pie-chart-container {
+    flex: 0 0 45%;
+    min-width: 300px;
+    max-width: 600px;
+}
+

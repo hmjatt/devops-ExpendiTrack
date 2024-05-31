@@ -244,4 +244,6 @@ describe('ExpenseContext Integration Tests', () => {
             expect(screen.getByText('Utilities - $100')).toBeInTheDocument();
         });
     });
+
 });
+

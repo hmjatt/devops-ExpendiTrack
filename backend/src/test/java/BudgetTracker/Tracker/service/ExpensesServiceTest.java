@@ -17,6 +17,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,13 +33,21 @@ public class ExpensesServiceTest{
 
     @Mock
     private ExpensesRepository expensesRepository;
+
     @InjectMocks
     private ExpensesService expensesService;
 
     @Mock
     private BudgetRepository budgetRepository;
+
     private Budget budget;
+    private Budget budget1;
+    private Budget budget2;
+
     private Expenses expense;
+    private Expenses expense1;
+    private Expenses expense2;
+    private Expenses expense3;
 
     @BeforeEach
     void setUp() {
@@ -44,14 +57,49 @@ public class ExpensesServiceTest{
         // Inject the mocked ExpensesRepository into your service
         ReflectionTestUtils.setField(expensesService, "expenseRepository", expensesRepository);
 
-        expense = new Expenses();
-        expense.setExpensesDescription("tuition fees");
-        expense.setExpensesDate(Instant.now());
 
+
+        // Initialize budgets
         budget = new Budget();
         budget.setBudgetId(100L);
         budget.setBudgetDescription("study");
         budget.setBudgetAmount(1000);
+
+        budget1 = new Budget();
+        budget1.setBudgetId(1L);
+        budget1.setBudgetDescription("Groceries");
+        budget1.setBudgetAmount(500);
+
+        budget2 = new Budget();
+        budget2.setBudgetId(2L);
+        budget2.setBudgetDescription("Utilities");
+        budget2.setBudgetAmount(300);
+
+        // Initialize expenses
+        expense = new Expenses();
+        expense.setExpensesDescription("tuition fees");
+        expense.setExpensesDate(Instant.now());
+
+        expense1 = new Expenses();
+        expense1.setExpensesId(1L);
+        expense1.setExpensesDescription("Milk");
+        expense1.setExpensesAmount(50);
+        expense1.setExpensesDate(Instant.now());
+        expense1.setBudget(budget1);
+
+        expense2 = new Expenses();
+        expense2.setExpensesId(2L);
+        expense2.setExpensesDescription("Bread");
+        expense2.setExpensesAmount(30);
+        expense2.setExpensesDate(Instant.now());
+        expense2.setBudget(budget1);
+
+        expense3 = new Expenses();
+        expense3.setExpensesId(3L);
+        expense3.setExpensesDescription("Electricity");
+        expense3.setExpensesAmount(100);
+        expense3.setExpensesDate(Instant.now());
+        expense3.setBudget(budget2);
 
     }
 
@@ -239,6 +287,156 @@ public class ExpensesServiceTest{
         assertThrows(RuntimeException.class, () -> expensesService.deleteExpense(expenseId));
     }
 
+    @Test
+    void getExpensesGroupedByBudget_Success() {
+        List<Expenses> allExpenses = Arrays.asList(expense1, expense2, expense3);
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(2, groupedExpenses.size());
+        assertEquals(80, groupedExpenses.get("Groceries").intValue());
+        assertEquals(100, groupedExpenses.get("Utilities").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_EmptyList() {
+        when(expensesRepository.findAll()).thenReturn(Collections.emptyList());
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(0, groupedExpenses.size());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_NullBudgetDescription() {
+        Expenses expenseWithNullBudgetDescription = new Expenses();
+        expenseWithNullBudgetDescription.setExpensesId(4L);
+        expenseWithNullBudgetDescription.setExpensesDescription("Unknown");
+        expenseWithNullBudgetDescription.setExpensesAmount(50);
+        expenseWithNullBudgetDescription.setExpensesDate(Instant.now());
+        expenseWithNullBudgetDescription.setBudget(null);
+
+        List<Expenses> allExpenses = Arrays.asList(expense1, expense2, expense3, expenseWithNullBudgetDescription);
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(3, groupedExpenses.size());
+        assertEquals(80, groupedExpenses.get("Groceries").intValue());
+        assertEquals(100, groupedExpenses.get("Utilities").intValue());
+        assertEquals(50, groupedExpenses.get("Uncategorized").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_NegativeAmounts() {
+        Expenses expenseWithNegativeAmount = new Expenses();
+        expenseWithNegativeAmount.setExpensesId(4L);
+        expenseWithNegativeAmount.setExpensesDescription("Refund");
+        expenseWithNegativeAmount.setExpensesAmount(-20);
+        expenseWithNegativeAmount.setExpensesDate(Instant.now());
+        expenseWithNegativeAmount.setBudget(budget1);
+
+        List<Expenses> allExpenses = Arrays.asList(expense1, expense2, expense3, expenseWithNegativeAmount);
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(2, groupedExpenses.size());
+        assertEquals(60, groupedExpenses.get("Groceries").intValue()); // 80 - 20
+        assertEquals(100, groupedExpenses.get("Utilities").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_ZeroAmount() {
+        Expenses expenseWithZeroAmount = new Expenses();
+        expenseWithZeroAmount.setExpensesId(4L);
+        expenseWithZeroAmount.setExpensesDescription("Free Sample");
+        expenseWithZeroAmount.setExpensesAmount(0);
+        expenseWithZeroAmount.setExpensesDate(Instant.now());
+        expenseWithZeroAmount.setBudget(budget1);
+
+        List<Expenses> allExpenses = Arrays.asList(expense1, expense2, expense3, expenseWithZeroAmount);
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(2, groupedExpenses.size());
+        assertEquals(80, groupedExpenses.get("Groceries").intValue());
+        assertEquals(100, groupedExpenses.get("Utilities").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_LargeNumberOfExpenses() {
+        List<Expenses> allExpenses = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            Expenses expense = new Expenses();
+            expense.setExpensesId((long) i);
+            expense.setExpensesDescription("Expense " + i);
+            expense.setExpensesAmount(10);
+            expense.setExpensesDate(Instant.now());
+            expense.setBudget(budget1);
+            allExpenses.add(expense);
+        }
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(1, groupedExpenses.size());
+        assertEquals(10000, groupedExpenses.get("Groceries").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+    @Test
+    void getExpensesGroupedByBudget_NonAsciiCharacters() {
+        Budget budgetWithNonAscii = new Budget();
+        budgetWithNonAscii.setBudgetId(3L);
+        budgetWithNonAscii.setBudgetDescription("休暇");
+
+        Expenses expenseWithNonAscii = new Expenses();
+        expenseWithNonAscii.setExpensesId(4L);
+        expenseWithNonAscii.setExpensesDescription("Sushi");
+        expenseWithNonAscii.setExpensesAmount(200);
+        expenseWithNonAscii.setExpensesDate(Instant.now());
+        expenseWithNonAscii.setBudget(budgetWithNonAscii);
+
+        List<Expenses> allExpenses = Arrays.asList(expense1, expense2, expense3, expenseWithNonAscii);
+
+        when(expensesRepository.findAll()).thenReturn(allExpenses);
+
+        Map<String, Integer> groupedExpenses = expensesService.getExpensesGroupedByBudget();
+
+        assertEquals(3, groupedExpenses.size());
+        assertEquals(80, groupedExpenses.get("Groceries").intValue());
+        assertEquals(100, groupedExpenses.get("Utilities").intValue());
+        assertEquals(200, groupedExpenses.get("休暇").intValue());
+
+        verify(expensesRepository).findAll();
+    }
+
+
+
+
+//    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 
     @Test
     void getExpensesGroupedByCategory_ReturnsData() {
@@ -394,4 +592,7 @@ public class ExpensesServiceTest{
         // Verify the result
         assertEquals(expected, result);
     }
+
+
 }
+

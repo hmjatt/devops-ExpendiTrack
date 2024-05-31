@@ -7,7 +7,14 @@ import BudgetTracker.Tracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.logging.Logger;
+
+
 import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Service class for handling business logic related to budgets.
  */
@@ -22,6 +29,8 @@ public class BudgetService {
 
     @Autowired
     private UserService userService;
+
+
     /**
      * Retrieves budgets associated with a specific user.
      *
@@ -32,6 +41,15 @@ public class BudgetService {
 
         return budgetRepository.findByUserId(userId);
     }
+
+
+    /**
+     *     created by Emily 05/16
+     *     To add log
+      */
+    private static final Logger logger = Logger.getLogger(BudgetService.class.getName());
+
+
     /**
      * Creates a new budget.
      *
@@ -64,6 +82,7 @@ public class BudgetService {
 
         return budgetRepository.save(budget);
     }
+
     /**
      * Checks if a string contains only alphanumeric characters.
      *
@@ -122,6 +141,38 @@ public class BudgetService {
         }
         budgetRepository.deleteById(id);
     }
+
+
+    /**
+     * Retrieves budget names and amounts by user ID.
+     *
+     * @param userId The ID of the user whose budget names and amounts are to be retrieved.
+     * @return List of budget names and amounts associated with the specified user.
+     */
+    public List<BudgetNameAndAmount> getBudgetNamesAndAmountsByUserId(Long userId) {
+        return budgetRepository.findByUserId(userId).stream()
+                .map(budget -> new BudgetNameAndAmount(budget.getBudgetDescription(), budget.getBudgetAmount()))
+                .collect(Collectors.toList());
+    }
+
+    public static class BudgetNameAndAmount {
+        private String name;
+        private int amount;
+
+        public BudgetNameAndAmount(String name, int amount) {
+            this.name = name;
+            this.amount = amount;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAmount() {
+            return amount;
+        }
+    }
+
 
 
 }

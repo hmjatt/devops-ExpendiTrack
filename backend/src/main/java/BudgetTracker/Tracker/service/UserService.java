@@ -1,5 +1,5 @@
 package BudgetTracker.Tracker.service;
-
+//validation/prerequcition check
 import BudgetTracker.Tracker.entity.User;
 import BudgetTracker.Tracker.exceptions.DuplicateUserException;
 import BudgetTracker.Tracker.exceptions.InvalidInputException;

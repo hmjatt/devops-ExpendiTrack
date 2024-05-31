@@ -39,3 +39,14 @@ export const deleteBudget = (budgetId) => {
             throw new Error(error.response?.data || 'An error occurred while deleting the budget. Please try again later.');
         });
 };
+
+
+// adding a new method to get the api for budget charts, edited by Emily 2024/5/27
+export const getBudgetCategoriesForChart = async (userId) => {
+    try {
+        const response = await axios.get(`${API_URL}/user/${userId}/names-and-amounts`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data || 'Failed to fetch budget categories for chart.');
+    }
+};

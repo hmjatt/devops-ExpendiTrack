@@ -120,4 +120,28 @@ public class BudgetController {
         }
     }
 
+    /**
+     * Endpoint to retrieve budget names and amounts by user ID.
+     *
+     * @param userId The ID of the user whose budget names and amounts are to be retrieved.
+     * @return A ResponseEntity containing a list of budget names and amounts associated with the specified user.
+     */
+    @GetMapping("/user/{userId}/names-and-amounts")
+    @Operation(summary = "Get budget names and amounts by user ID", description = "Retrieve the names and amounts of budgets associated with a specific user ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Budget names and amounts found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = BudgetService.BudgetNameAndAmount.class)))),
+            @ApiResponse(responseCode = "404", description = "Budgets not found")
+    })
+    public ResponseEntity<List<BudgetService.BudgetNameAndAmount>> getBudgetNamesAndAmountsByUserId(@Parameter(name="userId", description = "ID of the user to find budgets for", example = "1")
+                                                                                                    @PathVariable Long userId) {
+        System.out.println("Fetching budget names and amounts for userId: " + userId); // Log userId
+        List<BudgetService.BudgetNameAndAmount> budgetNamesAndAmounts = budgetService.getBudgetNamesAndAmountsByUserId(userId);
+        System.out.println("Budget names and amounts: " + budgetNamesAndAmounts); // Log the result
+        if (budgetNamesAndAmounts == null || budgetNamesAndAmounts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(budgetNamesAndAmounts);
+    }
+
+
 }
