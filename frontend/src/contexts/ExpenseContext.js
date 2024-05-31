@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import {getUserExpenses, createExpense, deleteExpense, updateExpense} from '../services/ExpenseService';
+import { getUserExpenses, createExpense, deleteExpense, updateExpense } from '../services/ExpenseService';
 import { useUserContext } from "./UserContext";
 import { useTranslation } from "react-i18next";
 
@@ -98,16 +98,14 @@ export const ExpenseProvider = ({ children }) => {
 
     // Function to update an existing expense
     const updateExistingExpense = useCallback(async (expenseId, expenseData) => {
-        if (!userId) return;
-
         try {
-
             const updatedExpense = await updateExpense(expenseId, expenseData);
-
-            setExpenses(prevExpenses => prevExpenses.map(exp =>
-                exp.expensesId === expenseId ? { ...exp, ...expenseData } : exp
-            ));
-            setUpdateCounter(prev => prev + 1);
+            setExpenses(prevExpenses =>
+                prevExpenses.map(exp =>
+                    exp.expensesId === expenseId ? { ...exp, ...updatedExpense } : exp
+                )
+            );
+            setUpdateCounter(prev => prev + 1); // Increment update counter
             setError('');
         } catch (error) {
             if (error.message.startsWith("An expense with the name")) {
@@ -124,7 +122,7 @@ export const ExpenseProvider = ({ children }) => {
                 setError(t(key));
             }
         }
-    }, [userId, errorMapping, t]);
+    }, [errorMapping, t]);
 
     // Function to remove an expense
     const removeExpense = useCallback(async (expenseId) => {

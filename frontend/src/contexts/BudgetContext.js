@@ -133,7 +133,7 @@ export const BudgetProvider = ({ children }) => {
                 setError(t(key));
             }
         }
-    }, [setBudgets, setError, fetchBudgetCategoriesForChart, errorMapping, t]);
+    }, [setBudgets, setError, fetchBudgetCategoriesForChart, errorMapping, t, userId]);
 
     const removeBudget = useCallback(async (budgetId) => {
         try {
@@ -145,7 +145,7 @@ export const BudgetProvider = ({ children }) => {
             const errorMessage = error.message || 'An unexpected error occurred';
             setError(errorMessage);
         }
-    }, [setBudgets, setError, fetchBudgetCategoriesForChart]);
+    }, [setBudgets, setError, fetchBudgetCategoriesForChart, userId ]);
 
     const resetError = useCallback(() => setError(''), []);
 

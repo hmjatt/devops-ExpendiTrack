@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app_network
+    ports:
+      - "3306:3306"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/Expendi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    ports:
+      - "3000:3000"
+
+  selenium:
+    build:
+      context: ./selenium-grid
+      dockerfile: Dockerfile
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app_network
+
+
+  selenium-tests:
+    build:
+      context: ./selenium-tests
+      dockerfile: Dockerfile
+    depends_on:
+      selenium:
+        condition: service_healthy
+    environment:
+      - SELENIUM_REMOTE_URL=http://selenium:4444/wd/hub
+      - APP_BASE_URL=http://frontend
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  db_data:
