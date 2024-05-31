@@ -91,7 +91,7 @@ jobs:
       # Cleanup services after tests have run
       - name: Cleanup services
         if: always()
-        run: docker-compose down
+        run: docker-compose -f docker-compose-dev.yml down
 
       # Analyze the test results to determine if the job should pass or fail
       - name: Analyze test results
