@@ -1,7 +1,7 @@
 # Trigger the workflow on pull requests targeting the main branch
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "Analytics" ]
 
 jobs:
   # Define the job for backend testing
