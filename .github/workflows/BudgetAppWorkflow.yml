@@ -75,7 +75,7 @@ jobs:
         run: |
           #!/bin/bash
           # Start the test process in the background and capture its output
-          docker-compose -f docker-compose.yml up --build | tee logs.txt &
+          docker-compose -f docker-compose-dev.yml up --build | tee logs.txt &
           PID=$!
           
           # Monitor the log file for a message indicating that tests are complete
