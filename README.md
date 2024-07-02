@@ -124,6 +124,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contributing
 Contributions are welcome! Please read the [CONTRIBUTING](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
-
-## Contact
-For any questions or inquiries, please contact the project maintainer at [maintainer@example.com](mailto:maintainer@example.com).
