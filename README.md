@@ -48,11 +48,11 @@ ExpenseTracker is an ambitious project aiming to leverage the Spring Boot framew
 - Code Repository:
   - GitHub
 
-- Testing(run tests on each pull request):
+- Testing (run tests on each pull request):
   - **Unit Testing, Integration Test:**
     - Backend -> JUnit
     - Frontend -> Jest and React Testing Library
-  - **End to end testing (E2E):**
+  - **End-to-end testing (E2E):**
     - Selenium (inside Docker container)
 
 - Build Tools:
@@ -77,6 +77,84 @@ ExpenseTracker is an ambitious project aiming to leverage the Spring Boot framew
 
 - Infrastructure-as-code:
   - Terraform
+
+## Running the App Locally
+
+### Prerequisites
+- Java (version 17)
+- Maven (version 3.8+)
+- Node.js (version 20.x)
+- npm or yarn
+- MySQL
+- Docker
+
+### Backend Setup
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/your-repo/devops-expenditrack.git
+    cd devops-expenditrack/backend
+    ```
+2. **Build the backend:**
+    ```sh
+    mvn clean install
+    ```
+3. **Run the backend server:**
+    ```sh
+    mvn spring-boot:run
+    ```
+
+### Frontend Setup
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/your-repo/devops-expenditrack.git
+    cd devops-expenditrack/frontend
+    ```
+2. **Install dependencies:**
+    ```sh
+    npm install
+    ```
+3. **Run the frontend server:**
+    ```sh
+    npm start
+    ```
+
+### Database Setup
+1. **Set up MySQL:**
+    - Create a database named `Expendi`.
+    - Set up environment variables for MySQL:
+      ```sh
+      export MYSQL_DATABASE=Expendi
+      export MYSQL_USER=sa
+      export MYSQL_PASSWORD=password
+      export MYSQL_ROOT_PASSWORD=password
+      ```
+    - Run the SQL scripts located in `db/scripts` to initialize the schema and data.
+
+### Docker Setup
+1. **Build and run Docker containers:**
+    ```sh
+    docker-compose up --build
+    ```
+
+## CI/CD Pipeline Overview
+
+The CI/CD pipeline for ExpenseTracker ensures continuous integration and deployment through a series of automated steps:
+
+1. **Triggering the Pipeline:**
+   - The pipeline is triggered on pull requests targeting the `main` and `Analytics` branches.
+
+2. **Backend Testing:**
+   - Uses GitHub Actions to set up JDK 17, build the backend using Maven, and run backend tests.
+
+3. **Frontend Testing:**
+   - Uses GitHub Actions to set up Node.js, install dependencies, build the frontend, and run frontend tests.
+
+4. **Selenium End-to-End Testing:**
+   - Uses Docker Compose to start necessary services (database, backend, frontend) and runs Selenium tests to verify end-to-end functionality.
+   - Logs are monitored for test completion, and services are cleaned up after tests.
+
+5. **Continuous Deployment:**
+   - Jenkins is configured to handle continuous deployment, integrating with Terraform for infrastructure provisioning and SonarQube for code quality analysis.
 
 ## Branches and Features
 
@@ -121,6 +199,3 @@ To get started with the ExpenseTracker project, follow the instructions in the r
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-## Contributing
-Contributions are welcome! Please read the [CONTRIBUTING](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
