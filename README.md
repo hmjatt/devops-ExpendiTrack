@@ -1,152 +1,201 @@
 # DevOps-ExpendiTrack
 
-## Overview:
+## Overview
 
 ExpenseTracker is an ambitious project aiming to leverage the Spring Boot framework, MySQL database, and React to create a robust web application dedicated to seamless budgeting and expense tracking. This comprehensive solution provides an intuitive user experience and efficient financial management. The project comprises various components and tasks that collectively contribute to its functionality.
 
-### Components:
+### Components
 
 **Agile-Board:**
 
-- Jira OR GitHub Issues
+- Jira
+  - <https://jill.hc-sc.gc.ca/jira/browse/DO-469>
 
 **Front-End:**
 
 - ReactJS
 
-**Middle-Ware:**
-
-- Spring Boot (Java-based framework for building APIs)
-  - Facilitates Database Interactions (CRUD Operations)
-  - Manages Authentication Requests
-  - Sends Responses to the Front-End with the necessary data
-
 **Backend:**
 
-- Java (Spring Boot)
+- Java (Spring Boot Maven)
 
 **Database:**
 
 - MySQL
 
-### CI/CD Pipeline:
+**Internationalization:**
 
-- Code Repository: GitHub
+- i18next
+- react-i18next
 
-- Testing:
+**API Documentation:**
+
+- Swagger
+
+**Test Cases:**
+
+- Confluence
+  - ***Backend:***
+    - <https://jill.hc-sc.gc.ca/confluence/display/~seid/User+Test>
+    - <https://jill.hc-sc.gc.ca/confluence/display/~seid/Budget++test>
+    - <https://jill.hc-sc.gc.ca/confluence/display/~seid/Expenses+test>
+  
+  - ***Frontend:***
+    - <https://jill.hc-sc.gc.ca/confluence/display/~hmatharo/Frontend+Testing+Documentation>
+
+### CI/CD Pipeline
+
+- Code Repository:
+  - GitHub
+
+- Testing (run tests on each pull request):
   - **Unit Testing, Integration Test:**
-    - Backend -> JUnit (run Tests on Each commit, and pull request)
+    - Backend -> JUnit
     - Frontend -> Jest and React Testing Library
-  - **End to end testing (E2E):**
-    - Cypress
+  - **End-to-end testing (E2E):**
+    - Selenium (inside Docker container)
 
-- Build Tools: Maven for Spring Boot, npm for React
+- Build Tools:
+  - Maven for Spring Boot
+  - NPM for React
 
-- Container: Docker
+- Container:
+  - Docker
 
-- Image/Artifact Repository: Artifactory
+- Image/Artifact Repository:
+  - JFrog Artifactory
 
-- Build Automation: GitHub Actions(OR Jenkins)
+- Build Automation:
+  - GitHub Actions
+  - Jenkins
 
 - Deployment Server:
-  - Front-End: GitHub
-  - Backend: Azure
+  - Azure VM
 
-- Additional:
-  - Notifications (Pass/Fail)
-  - Handling Failed Deployments(Send email through GitHub actions OR Create a Jira ticket and confluence issue and send email notification)
+- Code Quality Assurance tool:
+  - SonarQube
 
-## Screenshots/Preview
+- Infrastructure-as-code:
+  - Terraform
 
-## Usage
+## Running the App Locally
 
-## Steps
+### Prerequisites
+- Java (version 17)
+- Maven (version 3.8+)
+- Node.js (version 20.x)
+- npm or yarn
+- MySQL
+- Docker
 
-### MILESTONE 0 - PLAN AND IMPORTANT NOTES
+### Backend Setup
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/your-repo/devops-expenditrack.git
+    cd devops-expenditrack/backend
+    ```
+2. **Build the backend:**
+    ```sh
+    mvn clean install
+    ```
+3. **Run the backend server:**
+    ```sh
+    mvn spring-boot:run
+    ```
 
-- Select a project idea and technologies and outline how they will be utilized (consider creating a diagram). Seek approval for the chosen stack throughout the project.
-- Create wireframes and flowcharts.
-- Develop stories and epics.
-- Assign tasks to the team.
-- Begin building early, considering integration with the company's CI/CD pipeline.
-- Follow Test-Driven Development (TDD) principles, building test cases before writing code.
-- Adopt an iterative process, keeping team leads updated on project progress and incorporating feedback.
-- Prepare a presentation (possibly with charts) during demos.
-- Keep meticulous track of project progress.
+### Frontend Setup
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/your-repo/devops-expenditrack.git
+    cd devops-expenditrack/frontend
+    ```
+2. **Install dependencies:**
+    ```sh
+    npm install
+    ```
+3. **Run the frontend server:**
+    ```sh
+    npm start
+    ```
 
-### MILESTONE 1 - BUILD THE BASIC APP
+### Database Setup
+1. **Set up MySQL:**
+    - Create a database named `Expendi`.
+    - Set up environment variables for MySQL:
+      ```sh
+      export MYSQL_DATABASE=Expendi
+      export MYSQL_USER=sa
+      export MYSQL_PASSWORD=password
+      export MYSQL_ROOT_PASSWORD=password
+      ```
+    - Run the SQL scripts located in `db/scripts` to initialize the schema and data.
 
-- [ ] GitHub actions for Testing
-  - [ ] Avoid running the action when updating only the readme
-- [ ] Spring Boot Controllers & API Endpoints
-  - [ ] Set up environment variables
-  - [ ] Implement POST /api/budgets to create a new budget.
-  - [ ]  Implement GET /api/budgets to retrieve all existing budgets.
-    - [ ] Test it
-  - [ ] Implement GET /api/budgets/:id to retrieve a single budget by its ID.
-  - [ ] Implement GET /api/budgets/:id/expenses to retrieve all expenses associated with a specific budget.
-  - [ ] Implement PATCH /api/budgets/:id to update the details of a single budget, including its associated expenses.
-  - [ ] Implement DELETE /api/budgets/:id to delete a single budget and all its associated expenses.
-  - [ ] Implement GET /api/expenses to retrieve all existing expenses.
-  - [ ] Implement POST /api/expenses to create a new expense.
-  - [ ] Implement GET /api/expenses/:id to retrieve a single expense by its ID.
-  - [ ] Implement PATCH /api/expenses/:id to update the details of a single expense.
-  - [ ] Implement DELETE /api/expenses/:id to delete a single expense.
-- [ ] Test Spring Boot server and API endpoints using JUnit, Postman, and RestAssured.
-  - [ ] Include tests for error scenarios.
-- [ ] MySQL Database & Hibernate
-- [ ] Models & Entities
-- [ ] Controllers (part 1)
-- [ ] Creating a React App
-- [ ] Fetching Data
-- [ ] New Expense Form
-- [ ] Adding React Context
-- [ ] Deleting Data
-- [ ] Handling Error Responses
-- [ ] Completing Milestone 1
-  - [ ] Unit Testing, Integration Test: JUnit, Jest and React Testing Library (run Tests on Each commit, pull request)
+### Docker Setup
+1. **Build and run Docker containers:**
+    ```sh
+    docker-compose up --build
+    ```
 
-### MILESTONE 2 - ADD AUTHENTICATION
+## CI/CD Pipeline Overview
 
-- [ ] Introduction & Starter Project
-- [ ] User Routes, Controller & Model
-- [ ] User Registration & Password Hashing
-- [ ] Email & Password Validation
-- [ ] JSON Web Tokens (theory)
-- [ ] Generating and Validating Tokens
-- [ ] User Login
-- [ ] React Auth Context
-- [ ] Login & Signup Forms
-- [ ] Developing a useSignup Hook
-- [ ] Developing a useLogout Hook
-- [ ] Developing a useLogin Hook
-- [ ] Setting the Initial Auth Status
-- [ ] Securing API Routes
-- [ ] Making Authorized Requests
-- [ ] Securing React Routes
-- [ ] Associating Expenses with Users
-  - [ ] Unit Testing, Integration Test: JUnit, Jest and React Testing Library  (run Tests on Each commit, pull request)
-  - [ ] End to end testing (E2E): Cypress
+The CI/CD pipeline for ExpenseTracker ensures continuous integration and deployment through a series of automated steps:
 
-### MILESTONE 3 - DOCKERIZE APP
+1. **Triggering the Pipeline:**
+   - The pipeline is triggered on pull requests targeting the `main` and `Analytics` branches.
 
-- [ ] Dockerize React client
-- [ ] Dockerize MySQL database
-- [ ] Dockerize Spring Boot API server
-- [ ] Set up Docker Compose
+2. **Backend Testing:**
+   - Uses GitHub Actions to set up JDK 17, build the backend using Maven, and run backend tests.
 
-### MILESTONE 4 - BUILD CI/CD PIPELINE
+3. **Frontend Testing:**
+   - Uses GitHub Actions to set up Node.js, install dependencies, build the frontend, and run frontend tests.
 
-- [ ] GitHub actions for continuous integration and delivery
-- [ ] Send Email Notifications of Pipeline Status
+4. **Selenium End-to-End Testing:**
+   - Uses Docker Compose to start necessary services (database, backend, frontend) and runs Selenium tests to verify end-to-end functionality.
+   - Logs are monitored for test completion, and services are cleaned up after tests.
 
-## Future Changes
+5. **Continuous Deployment:**
+   - Jenkins is configured to handle continuous deployment, integrating with Terraform for infrastructure provisioning and SonarQube for code quality analysis.
 
-- Deploy App (render, netlify, Azure/internally etc)
-- javadocs or swagger docs(API Testing docs) for basically everything(specially tests)
-- pipeline as github action, on each PR(sprint1 OR sprint2) and only approve if all tests pass(backend and frontend)
-- decide to separate backend and backend for CI/CD pipeline testing 
-- Document tests in excel,etc.
-- link jira to confluence for documentation(Documentation of Agile)
+## Branches and Features
 
-## Resources
+### Main Branch (`main`)
+The `main` branch serves as the primary branch containing the basic version of the application. It includes the following features:
+- Basic application setup
+- Initial GitHub workflow for Selenium tests
+- Initial commit and basic configuration files
+- Docker-compose setup for deployment
+- Exceptions tests and other fundamental features
+
+### Analytics Branch (`analytics`)
+The `analytics` branch focuses on adding analytics and charts to the application. Features include:
+- Integration of analytics tools and libraries
+- Development of dashboards and charts for data visualization
+- Enhancements to support backend data analysis and reporting
+- UI/UX improvements for displaying analytical data
+
+### Jenkins Branch (`jenkins`)
+The `jenkins` branch includes the following features:
+- Jenkins pipeline setup for continuous integration and deployment
+- Adding Jenkins configuration files and scripts
+- Integration with backend, frontend, database, and Selenium branches
+- Deployment and testing automation using Jenkins
+
+### SonarQube Branch (`sonarqube`)
+The `sonarqube` branch focuses on integrating SonarQube for code quality analysis. Features include:
+- SonarQube analysis for backend and frontend code
+- Dockerfile setup for SonarQube integration
+- Jenkins pipeline stages for SonarQube code analysis
+- Automated code quality checks and reports
+
+### Terraform Branch (`terraform`)
+The `terraform` branch is dedicated to deploying the application using Terraform. Key features include:
+- Terraform scripts for infrastructure provisioning
+- Jenkins pipeline integration for automated deployment using Terraform
+- Environment-specific configurations for deploying different stages
+- Enhancements to support backend, frontend, and database deployments
+
+## Getting Started
+To get started with the ExpenseTracker project, follow the instructions in the respective branches' README files for setup and deployment details.
+
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
